@@ -37,6 +37,9 @@ export default function ArenaChat() {
     try {
       const res = await fetch("/api/sessions/init", { method: "POST" });
       const data = await res.json();
+      if (data.error) {
+        throw new Error(data.error);
+      }
       setSession(data);
     } catch (err) {
       console.error("Failed to start battle session:", err);
@@ -71,11 +74,11 @@ export default function ArenaChat() {
     setLoading(true);
 
     const updatedMsgsA = [
-      ...session.messagesA,
+      ...(session.messagesA || []),
       { id: `opt-usr-a`, role: "user" as const, content: userPrompt },
     ];
     const updatedMsgsB = [
-      ...session.messagesB,
+      ...(session.messagesB || []),
       { id: `opt-usr-b`, role: "user" as const, content: userPrompt },
     ];
 

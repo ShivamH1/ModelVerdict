@@ -21,12 +21,22 @@ export async function createSession(): Promise<Session> {
     }
   });
 
-  return newSession as unknown as Session;
+  return {
+    ...newSession,
+    messagesA: (newSession.messagesA as any) || [],
+    messagesB: (newSession.messagesB as any) || []
+  } as unknown as Session;
 }
 
 export async function getSession(id: string): Promise<Session | null> {
   const session = await prisma.session.findUnique({ where: { id } });
-  return session ? (session as unknown as Session) : null;
+  if (!session) return null;
+  
+  return {
+    ...session,
+    messagesA: (session.messagesA as any) || [],
+    messagesB: (session.messagesB as any) || []
+  } as unknown as Session;
 }
 
 export async function updateSession(session: Session): Promise<void> {
