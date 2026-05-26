@@ -1,0 +1,11 @@
+{
+  "name": "@veritas/evaluator",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@veritas/shared": "workspace:*",
+    "@veritas/llm-client": "workspace:*"
+  }
+}
