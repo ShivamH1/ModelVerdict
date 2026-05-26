@@ -281,7 +281,9 @@ export default function ArenaChat() {
   };
 
   const hasMessages =
-    session && (session.messagesA.length > 0 || session.messagesB.length > 0);
+    session &&
+    ((session.messagesA && session.messagesA.length > 0) ||
+      (session.messagesB && session.messagesB.length > 0));
 
   return (
     <div className="flex flex-col flex-1 h-full bg-[#0a0a0a] text-[#e0e0e0] font-sans antialiased relative">
