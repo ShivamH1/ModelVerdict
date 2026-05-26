@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { startEvaluation, getEvaluationStatus, getEvaluationHistory } from '../services/evaluation';
-import fs from 'fs/promises';
-import path from 'path';
+import { prisma } from '../db';
+import { calculateMetrics } from '@veritas/evaluator';
+import { MODEL_CATALOG, EvalResult } from '@veritas/shared';
 
 const router = Router();
 
@@ -16,8 +17,7 @@ router.post('/run', async (req, res) => {
 });
 
 router.get('/status', (req, res) => {
-  // Ideally, frontend should pass runId in query, but for simple MVP we fetch any active
-  const status = getEvaluationStatus(); // In real app, pass runId
+  const status = getEvaluationStatus(); 
   res.json(status);
 });
 
@@ -28,11 +28,32 @@ router.get('/history', async (req, res) => {
 
 router.get('/report/:runId', async (req, res) => {
   try {
-    const reportPath = path.join(process.cwd(), 'data', `${req.params.runId}.json`);
-    const data = await fs.readFile(reportPath, 'utf-8');
-    res.json(JSON.parse(data));
+    const run = await prisma.evalRun.findUnique({ where: { id: req.params.runId } });
+    if (!run) return res.status(404).json({ error: 'Run not found' });
+    
+    const results = await prisma.evalResult.findMany({ where: { runId: run.id } });
+    if (results.length === 0) return res.status(404).json({ error: 'Results not found' });
+    
+    const modelIdA = results[0].modelIdA;
+    const modelIdB = results[0].modelIdB;
+    const modelA = MODEL_CATALOG.find(m => m.id === modelIdA);
+    const modelB = MODEL_CATALOG.find(m => m.id === modelIdB);
+    
+    if (!modelA || !modelB) return res.status(500).json({ error: 'Models not found in catalog' });
+
+    const typedResults = results as unknown as EvalResult[];
+    
+    const metricsA = calculateMetrics(modelIdA, modelA.name, typedResults, true);
+    const metricsB = calculateMetrics(modelIdB, modelB.name, typedResults, false);
+    
+    res.json({
+      run,
+      metricsA,
+      metricsB,
+      results: typedResults
+    });
   } catch (error) {
-    res.status(404).json({ error: 'Report not found' });
+    res.status(500).json({ error: 'Failed to generate report' });
   }
 });
 
