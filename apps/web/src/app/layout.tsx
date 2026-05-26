@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Bot, BarChart3, Shield } from "lucide-react";
+import { Shield } from "lucide-react";
 import Link from "next/link";
+
+import { Nav } from "@/components/Nav";
 
 export const metadata: Metadata = {
   title: "Veritas Arena",
@@ -29,32 +31,8 @@ export default function RootLayout({
               </span>
             </Link>
 
-            {/* Navigation Action tabs (Clean flat pills using Links) */}
-            <nav className="flex bg-neutral-950 p-1 rounded-lg border border-neutral-900/80 font-mono text-[11px] font-medium leading-none shrink-0">
-              <Link
-                href="/"
-                className="px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-all text-2xs cursor-pointer text-neutral-400 hover:text-neutral-200"
-              >
-                <Bot className="w-3.5 h-3.5 text-neutral-400" />
-                Chat Arena
-              </Link>
-
-              <Link
-                href="/benchmark"
-                className="px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-all text-2xs cursor-pointer text-neutral-400 hover:text-neutral-200"
-              >
-                <BarChart3 className="w-3.5 h-3.5 text-neutral-400" />
-                Benchmark Studio
-              </Link>
-
-              <Link
-                href="/logs"
-                className="px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-all text-2xs cursor-pointer text-neutral-400 hover:text-neutral-200"
-              >
-                <Shield className="w-3.5 h-3.5 text-neutral-400" />
-                Guardrail Logs
-              </Link>
-            </nav>
+            {/* Navigation Action tabs (Clean flat pills using dynamic Nav) */}
+            <Nav />
 
             {/* Inline active status badge */}
             <div className="hidden sm:flex items-center gap-1.5 bg-neutral-950/40 rounded-full px-3 py-1 border border-neutral-900/60 text-neutral-500 text-[10px] font-mono">

@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Send, RefreshCw, Settings } from "lucide-react";
 import { Session } from "@/types";
-import { cn } from "@/lib/utils";
 import { ArenaWelcome } from "./arena/ArenaWelcome";
 import { BallotPanel } from "./arena/BallotPanel";
 import { BattlePanel } from "./arena/BattlePanel";
