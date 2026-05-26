@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Shield, Search, RefreshCw, FileJson } from "lucide-react";
-import { InferenceLog } from "@/types";
+import { InferenceLog } from "@veritas/shared";
 import { cn } from "@/lib/utils";
 import { StatsGrid } from "./logs/StatsGrid";
 import { LogTable } from "./logs/LogTable";

@@ -1,6 +1,6 @@
 "use client";
 
-import { Session } from "@/types";
+import { Session } from "@veritas/shared";
 
 interface BallotPanelProps {
   session: Session;

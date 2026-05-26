@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Search, ChevronDown } from "lucide-react";
-import { EvalResult, EvalSuiteReport } from "@/types";
+import { EvalResult, EvalSuiteReport } from "@veritas/shared";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 

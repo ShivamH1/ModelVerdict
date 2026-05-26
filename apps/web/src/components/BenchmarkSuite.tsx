@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Play, BarChart3, FileDown, Info } from "lucide-react";
-import { EvalRun, EvalSuiteReport } from "@/types";
+import { EvalRun, EvalSuiteReport } from "@veritas/shared";
 import { MetricCard } from "./benchmark/MetricCard";
 import { JudgeLedger } from "./benchmark/JudgeLedger";
 

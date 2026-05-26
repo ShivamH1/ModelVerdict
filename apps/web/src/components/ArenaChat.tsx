@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Send, RefreshCw, Settings } from "lucide-react";
-import { Session } from "@/types";
+import { Session } from "@veritas/shared";
 import { ArenaWelcome } from "./arena/ArenaWelcome";
 import { BallotPanel } from "./arena/BallotPanel";
 import { BattlePanel } from "./arena/BattlePanel";

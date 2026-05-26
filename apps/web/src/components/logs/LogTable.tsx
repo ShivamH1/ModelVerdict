@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { ShieldAlert, ShieldCheck, Clock, HardDrive, Terminal, Bot, AlertCircle } from "lucide-react";
-import { InferenceLog } from "@/types";
+import { InferenceLog } from "@veritas/shared";
 import { cn } from "@/lib/utils";
 
 interface LogTableProps {
