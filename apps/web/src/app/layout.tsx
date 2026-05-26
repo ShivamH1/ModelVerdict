@@ -22,12 +22,12 @@ export default function RootLayout({
         <header className="bg-neutral-900/60 border-b border-neutral-900 backdrop-blur-md sticky top-0 z-50 px-4 py-2.5 shrink-0 print:hidden select-none">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
             {/* Logo Minimal Identifier */}
-            <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <Link
+              href="/"
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            >
               <span className="text-sm font-semibold tracking-tight text-neutral-100 flex items-center gap-1.5 font-serif italic">
                 Veritas Arena
-              </span>
-              <span className="text-[9px] uppercase tracking-widest bg-neutral-800 px-1.5 py-0.5 rounded text-neutral-400 font-mono font-bold">
-                SYSTEM v1.2
               </span>
             </Link>
 
