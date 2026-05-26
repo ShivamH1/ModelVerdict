@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-mono: "JetBrains Mono", monospace;
+  
+  --color-neutral-900: #121212;
+  --color-neutral-950: #0a0a0a;
+
+  /* shadcn/ui defaults for Tailwind v4 */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
+:root {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  
+  --card: #0a0a0a;
+  --card-foreground: #ededed;
+ 
+  --popover: #0a0a0a;
+  --popover-foreground: #ededed;
+ 
+  --primary: #ededed;
+  --primary-foreground: #0a0a0a;
+ 
+  --secondary: #27272a;
+  --secondary-foreground: #ededed;
+ 
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+ 
+  --accent: #27272a;
+  --accent-foreground: #ededed;
+ 
+  --destructive: #7f1d1d;
+  --destructive-foreground: #ededed;
+ 
+  --border: #27272a;
+  --input: #27272a;
+  --ring: #d4d4d8;
+  
+  --radius: 0.5rem;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+.selection\:bg-neutral-800 ::selection {
+  background-color: #262626;
+}
+
+.selection\:text-white ::selection {
+  color: #ffffff;
+}
