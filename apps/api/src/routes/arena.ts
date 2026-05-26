@@ -17,20 +17,20 @@ router.post('/init', async (req, res) => {
 });
 
 router.post('/:id/chat', async (req, res) => {
-  const session = await getSession(req.params.id);
-  if (!session) {
-    return res.status(404).json({ error: 'Session not found' });
-  }
-
-  const { prompt, customApiKey, customBaseUrl, customModelName } = req.body;
-  
-  // Guardrail Input Check
-  const inputCheck = checkInputGuardrail(prompt);
-
-  const modelA = MODEL_CATALOG.find(m => m.id === session.modelIdA)!;
-  const modelB = MODEL_CATALOG.find(m => m.id === session.modelIdB)!;
-
   try {
+    const session = await getSession(req.params.id);
+    if (!session) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
+
+    const { prompt, customApiKey, customBaseUrl, customModelName } = req.body;
+    
+    // Guardrail Input Check
+    const inputCheck = checkInputGuardrail(prompt);
+
+    const modelA = MODEL_CATALOG.find(m => m.id === session.modelIdA)!;
+    const modelB = MODEL_CATALOG.find(m => m.id === session.modelIdB)!;
+
     // Generate for A
     let msgA;
     if (inputCheck.triggered) {
@@ -76,22 +76,30 @@ router.post('/:id/chat', async (req, res) => {
 });
 
 router.post('/:id/vote', async (req, res) => {
-  const session = await getSession(req.params.id);
-  if (!session) return res.status(404).json({ error: 'Not found' });
-  
-  session.votedFor = req.body.vote;
-  session.isRevealed = true;
-  await updateSession(session);
-  res.json(session);
+  try {
+    const session = await getSession(req.params.id);
+    if (!session) return res.status(404).json({ error: 'Not found' });
+    
+    session.votedFor = req.body.vote;
+    session.isRevealed = true;
+    await updateSession(session);
+    res.json(session);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 router.post('/:id/reveal', async (req, res) => {
-  const session = await getSession(req.params.id);
-  if (!session) return res.status(404).json({ error: 'Not found' });
-  
-  session.isRevealed = true;
-  await updateSession(session);
-  res.json(session);
+  try {
+    const session = await getSession(req.params.id);
+    if (!session) return res.status(404).json({ error: 'Not found' });
+    
+    session.isRevealed = true;
+    await updateSession(session);
+    res.json(session);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 export default router;
