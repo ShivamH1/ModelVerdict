@@ -8,7 +8,7 @@ export function initWebSocketServer(server: http.Server) {
 
   wss.on('connection', (ws: WebSocket) => {
     console.log('[WS] Client connected');
-    ws.send(JSON.stringify({ type: 'welcome', data: 'Connected to Veritas Arena WS' }));
+    ws.send(JSON.stringify({ type: 'welcome', data: 'Connected to ModelVerdict WS' }));
 
     ws.on('close', () => {
       console.log('[WS] Client disconnected');

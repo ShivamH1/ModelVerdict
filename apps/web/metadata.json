@@ -1,5 +1,5 @@
 {
-  "name": "Veritas Arena",
+  "name": "ModelVerdict",
   "description": "A side-by-side LLM battleground and evaluation suite comparing models across hallucination rate, content safety, and output bias with real-time analytics.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

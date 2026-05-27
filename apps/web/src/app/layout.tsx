@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Nav } from "@/components/Nav";
 
 export const metadata: Metadata = {
-  title: "Veritas Arena",
+  title: "ModelVerdict",
   description: "Swiss Modern Evaluation Standards for LLMs",
 };
 
@@ -27,7 +27,7 @@ export default function RootLayout({
               className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             >
               <span className="text-sm font-semibold tracking-tight text-neutral-100 flex items-center gap-1.5 font-serif italic">
-                Veritas Arena
+                ModelVerdict
               </span>
             </Link>
 
@@ -52,7 +52,7 @@ export default function RootLayout({
         {/* STANDARD PERSISTENT FOOTER */}
         <footer className="bg-neutral-950 border-t border-neutral-900/50 py-3 px-4 text-center text-[10px] text-neutral-600 font-mono uppercase tracking-widest shrink-0 print:hidden select-none">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
-            <span>Veritas Arena • Swiss Modern Evaluation Standards</span>
+            <span>ModelVerdict • Swiss Modern Evaluation Standards</span>
             <div className="flex gap-3 items-center">
               <span className="flex items-center gap-1 text-neutral-500">
                 <Shield className="w-3 h-3 text-neutral-600" />

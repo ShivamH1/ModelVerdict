@@ -28,8 +28,8 @@ export function buildClient(provider: 'openrouter' | 'huggingface' | 'gemini', a
     timeout: 15000,
     httpAgent: keepAliveAgent,
     defaultHeaders: provider === 'openrouter' ? {
-      'HTTP-Referer': 'https://veritas-arena.com',
-      'X-Title': 'Veritas Arena',
+      'HTTP-Referer': 'https://modelverdict.com',
+      'X-Title': 'ModelVerdict',
     } : undefined
   });
 

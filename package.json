@@ -1,5 +1,5 @@
 {
-  "name": "Arena-AI",
+  "name": "model-verdict",
   "private": true,
   "scripts": {
     "build": "turbo run build",

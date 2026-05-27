@@ -53,5 +53,5 @@ const server = http.createServer(app);
 initWebSocketServer(server);
 
 server.listen(PORT, () => {
-  console.log(`🚀 Veritas Arena API listening on http://localhost:${PORT}`);
+  console.log(`🚀 ModelVerdict API listening on http://localhost:${PORT}`);
 });
