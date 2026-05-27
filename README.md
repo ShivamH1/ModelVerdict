@@ -1,159 +1,85 @@
-# Turborepo starter
+# ModelVerdict
 
-This Turborepo starter is maintained by the Turborepo core team.
+> **Swiss Modern Evaluation Standards for Large Language Models**
 
-## Using this example
+ModelVerdict is an advanced LLM benchmarking battleground and automated evaluation suite. It compares models across factual correctness (hallucination index), content safety, and output bias through user votes and automated, advisor-graded batch test runs.
 
-Run the following command:
+---
 
-```sh
-npx create-turbo@latest
+## 🚀 Key Features
+
+### 1. Chat Arena (Comparative Battles)
+*   **Blind Mode Matches**: Input prompts to two anonymous models simultaneously.
+*   **Real-time Output Streaming**: Parallel streaming of outputs.
+*   **Dynamic Elo Rating Feedback**: Grade matches via user voting (A is better, B is better, Tie, or Both bad). Voting dynamically updates and shows immediate rating changes (e.g. `+16 Elo` / `-15 Elo`) on the reveal card.
+
+### 2. Model Leaderboard
+*   **Sequential Elo Calculations**: Dynamic standings page generated chronologically from database vote records.
+*   **Match Statistics**: Displays total matches, Wins / Losses / Ties, and win rate percentages for each model in the catalog.
+*   **Trophy Highlights**: Highlights the current #1 model in a custom status card.
+
+### 3. Benchmark Studio
+*   **Automated Evaluation runs**: Run batch tests of variable sizes (5 to 35 prompts) evaluated on-demand by Gemini-as-a-Judge.
+*   **Executive Scorecards**: Comprehensive report summaries covering hallucination rates, safety refusal indices, average inference latencies, and token cost projections.
+*   **Impartial Judge Ledger**: A prompt-by-prompt ledger displaying model outputs, scores, and natural language reasoning comments.
+
+### 4. Observability Guardrail Logs
+*   **Deterministic Safety Filters**: Logs pre-LLM input blocks and post-LLM output filters.
+*   **Cost Auditing**: Logs latency, token usage, and estimated dollar costs (filtering out incomplete or zero-token logs).
+
+---
+
+## 🛠️ Tech Stack & Architecture
+
+ModelVerdict is organized as a high-performance monorepo using **Turborepo** and **Bun**:
+
+### Applications
+*   **`apps/web`**: Next.js single-page application built with React, Lucide Icons, and Vanilla CSS.
+*   **`apps/api`**: Express.js server utilizing Node HTTP, WebSockets (`ws`), and Prisma ORM connected to PostgreSQL.
+
+### Shared Packages
+*   **`packages/llm-client`**: Client interface for communicating with OpenRouter, HuggingFace, and Google Gemini API endpoints.
+*   **`packages/evaluator`**: Grading rules, rubrics, and automated judge prompting logic.
+*   **`packages/shared`**: Shared TypeScript interfaces, model catalogs (`MODEL_CATALOG`), and types.
+
+---
+
+## 📦 Getting Started
+
+### 1. Prerequisites
+Make sure you have [Bun](https://bun.sh/) and [PostgreSQL](https://www.postgresql.org/) installed locally.
+
+### 2. Environment Variables
+Create a `.env` file at the root of the workspace (and configure local `.env` details in `apps/web` and `apps/api` where needed).
+```ini
+DATABASE_URL="postgresql://user:password@localhost:5432/modelverdict"
+OPENROUTER_API_KEY="your-openrouter-key"
 ```
 
-## What's inside?
+### 3. Installation & Database Generation
+Install monorepo dependencies and generate the Prisma Client for the database:
+```bash
+# Install packages
+bun install
 
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+# Generate database schemas
+cd apps/api
+bun prisma generate
 ```
 
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo build
-bun dlx turbo build
-bun exec turbo build
+### 4. Running the Application
+Launch both the backend and frontend dev servers concurrently from the root directory:
+```bash
+bun run dev
 ```
+*   **Frontend Client**: [http://localhost:3000](http://localhost:3000)
+*   **Backend Express API**: [http://localhost:3001](http://localhost:3001)
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+---
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+## 🧪 Development Commands
 
-```sh
-turbo build --filter=docs
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo build --filter=docs
-bun exec turbo build --filter=docs
-bun exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-bun exec turbo dev
-bun exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-bun exec turbo dev --filter=web
-bun exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-bun exec turbo login
-bun exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-bun exec turbo link
-bun exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+*   **Lint Codebase**: `bun run lint` (runs Turbo-cached ESLint)
+*   **Format Files**: `bun run format` (runs Prettier)
+*   **Type Checking**: `bun run check-types`
+*   **Production Build**: `bun run build`
