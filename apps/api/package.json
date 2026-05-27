@@ -19,7 +19,8 @@
     "pg": "^8.21.0",
     "pg-connection-string": "^2.13.0",
     "prisma": "^7.8.0",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "ws": "^8.21.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
@@ -28,6 +29,7 @@
     "@types/pg": "^8.20.0",
     "@types/pg-connection-string": "^2.0.0",
     "@types/uuid": "^10.0.0",
+    "@types/ws": "^8.18.1",
     "dotenv": "^17.4.2",
     "typescript": "^5.0.0"
   }

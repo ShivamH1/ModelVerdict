@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Shield, ShieldAlert, ShieldCheck, Search, RefreshCw, Clock, Coins, Terminal, HardDrive, FileJson, AlertCircle, Bot } from "lucide-react";
+import { Shield, ShieldAlert, ShieldCheck, Search, RefreshCw, Clock, Terminal, HardDrive, FileJson, AlertCircle, Bot } from "lucide-react";
 import { InferenceLog } from "@veritas/shared";
 import { cn } from "@/lib/utils";
 
@@ -25,7 +25,9 @@ export default function GuardrailsLogs() {
     }
   };
 
-  useEffect(() => { fetchLogs(); }, []);
+  useEffect(() => {
+    Promise.resolve().then(() => fetchLogs());
+  }, []);
 
   const filteredLogs = logs.filter(log => {
     const matchesSearch = log.prompt.toLowerCase().includes(search.toLowerCase()) ||

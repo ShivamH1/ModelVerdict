@@ -1,10 +1,12 @@
 import express from 'express';
 import cors from 'cors';
 import compression from 'compression';
+import http from 'http';
 import modelsRouter from './routes/models';
 import arenaRouter from './routes/arena';
 import evalRouter from './routes/eval';
 import logsRouter from './routes/logs';
+import { initWebSocketServer } from './services/websocket';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -46,6 +48,10 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', uptime: process.uptime() });
 });
 
-app.listen(PORT, () => {
+const server = http.createServer(app);
+
+initWebSocketServer(server);
+
+server.listen(PORT, () => {
   console.log(`🚀 Veritas Arena API listening on http://localhost:${PORT}`);
 });

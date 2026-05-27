@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Send, RefreshCw, Settings } from "lucide-react";
+import { Send, RefreshCw } from "lucide-react";
 import { Session } from "@veritas/shared";
+import { Alert } from "./Alert";
 import { ArenaWelcome } from "./arena/ArenaWelcome";
 import { BallotPanel } from "./arena/BallotPanel";
 import { BattlePanel } from "./arena/BattlePanel";
-import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export default function ArenaChat() {
@@ -14,13 +14,8 @@ export default function ArenaChat() {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [blindMode, setBlindMode] = useState(true);
-  const [showSettings, setShowSettings] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-
-  // Custom Provider State
-  const [customApiKey, setCustomApiKey] = useState("");
-  const [customBaseUrl, setCustomBaseUrl] = useState("");
-  const [customModelName, setCustomModelName] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   // Live streaming states
   const [isStreaming, setIsStreaming] = useState(false);
@@ -58,7 +53,7 @@ export default function ArenaChat() {
   };
 
   useEffect(() => {
-    initSession();
+    Promise.resolve().then(() => initSession());
   }, []);
 
   useEffect(() => {
@@ -82,6 +77,7 @@ export default function ArenaChat() {
       { id: `opt-usr-b`, role: "user" as const, content: userPrompt },
     ];
 
+    const previousSession = session;
     setSession({
       ...session,
       messagesA: updatedMsgsA,
@@ -94,15 +90,13 @@ export default function ArenaChat() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt: userPrompt,
-          customApiKey: customApiKey || undefined,
-          customBaseUrl: customBaseUrl || undefined,
-          customModelName: customModelName || undefined,
         }),
       });
       const data = await res.json();
 
       if (data.error) {
-        alert(data.error);
+        setError(data.error);
+        setSession(previousSession);
         setLoading(false);
       } else {
         const lastIndexA = data.messagesA.length - 1;
@@ -187,8 +181,11 @@ export default function ArenaChat() {
           }
         }, 12);
       }
-    } catch (error) {
-      console.error("Chat failure:", error);
+    } catch (err) {
+      console.error("Chat failure:", err);
+      const msg = err instanceof Error ? err.message : "Failed to send chat prompt.";
+      setError(msg);
+      setSession(previousSession);
       setLoading(false);
     }
   };
@@ -308,18 +305,7 @@ export default function ArenaChat() {
           </button>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowSettings(!showSettings)}
-            className={cn(
-              "text-xs px-2.5 py-1 rounded transition-all flex items-center gap-1.5",
-              showSettings
-                ? "bg-neutral-800 text-white"
-                : "text-neutral-400 hover:text-white",
-            )}
-          >
-            <Settings className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Settings</span>
-          </button>
+
           <button
             onClick={initSession}
             disabled={loading}
@@ -336,45 +322,7 @@ export default function ArenaChat() {
         </div>
       </div>
 
-      <AnimatePresence>
-        {showSettings && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="bg-[#121212] border-b border-neutral-900 overflow-hidden"
-          >
-            <div className="max-w-4xl mx-auto p-4 space-y-3">
-              <div className="text-xs font-semibold text-neutral-200">
-                Configure External OpenAI Endpoint
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
-                <input
-                  type="text"
-                  className="bg-neutral-950 border border-neutral-800 rounded p-2 text-xs text-neutral-200 focus:outline-none focus:border-neutral-700"
-                  placeholder="Base URL"
-                  value={customBaseUrl}
-                  onChange={(e) => setCustomBaseUrl(e.target.value)}
-                />
-                <input
-                  type="password"
-                  className="bg-neutral-950 border border-neutral-800 rounded p-2 text-xs text-neutral-200 focus:outline-none focus:border-neutral-700"
-                  placeholder="Api Key"
-                  value={customApiKey}
-                  onChange={(e) => setCustomApiKey(e.target.value)}
-                />
-                <input
-                  type="text"
-                  className="bg-neutral-950 border border-neutral-800 rounded p-2 text-xs text-neutral-200 focus:outline-none focus:border-neutral-700"
-                  placeholder="Model Name"
-                  value={customModelName}
-                  onChange={(e) => setCustomModelName(e.target.value)}
-                />
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
 
       <div className="flex-1 flex flex-col justify-between overflow-y-auto w-full max-w-7xl mx-auto px-4 py-6 md:px-8">
         {!hasMessages ? (
@@ -444,6 +392,7 @@ export default function ArenaChat() {
         )}
       </div>
       <div ref={chatEndRef} />
+      {error && <Alert message={error} onClose={() => setError(null)} />}
     </div>
   );
 }

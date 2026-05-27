@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Play, BarChart3, FileDown, Info, ChevronDown, Search } from "lucide-react";
 import { EvalRun, EvalSuiteReport, MODEL_CATALOG } from "@veritas/shared";
 import { cn } from "@/lib/utils";
+import { Alert } from "./Alert";
 
 export default function BenchmarkSuite() {
   const [runsHistory, setRunsHistory] = useState<EvalRun[]>([]);
@@ -15,6 +16,17 @@ export default function BenchmarkSuite() {
   const [testSize, setTestSize] = useState("10");
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0, currentPromptId: "", status: "idle" });
+  const [error, setError] = useState<string | null>(null);
+
+  const wsRef = useRef<WebSocket | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+    };
+  }, []);
 
   // Ledger filter state
   const [filterCategory, setFilterCategory] = useState<"all" | "factual" | "adversarial" | "bias">("all");
@@ -35,9 +47,6 @@ export default function BenchmarkSuite() {
     }
   };
 
-  useEffect(() => { fetchHistory(); }, []);
-  useEffect(() => { if (selectedRunId) fetchReport(selectedRunId); }, [selectedRunId]);
-
   const fetchReport = async (runId: string) => {
     try {
       const res = await fetch(`/api/evaluation/report/${runId}`);
@@ -47,6 +56,17 @@ export default function BenchmarkSuite() {
       console.error("Failed report fetch:", err);
     }
   };
+
+  useEffect(() => {
+    Promise.resolve().then(() => fetchHistory());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (selectedRunId) {
+      Promise.resolve().then(() => fetchReport(selectedRunId));
+    }
+  }, [selectedRunId]);
 
   const handleLaunch = async () => {
     setIsRunning(true);
@@ -59,47 +79,82 @@ export default function BenchmarkSuite() {
         body: JSON.stringify({ modelIdA: modelA, modelIdB: modelB, testSize: parseInt(testSize) })
       });
       const data = await res.json();
-      if (data.error) { alert(data.error); setIsRunning(false); }
-      else pollStatus(data.runId);
+      if (data.error) { setError(data.error); setIsRunning(false); }
+      else connectWebSocket(data.runId);
     } catch (err) {
       console.error("Launch failed:", err);
       setIsRunning(false);
     }
   };
 
-  const pollStatus = (runId: string) => {
-    const interval = setInterval(async () => {
+  const connectWebSocket = (runId: string) => {
+    if (wsRef.current) {
+      wsRef.current.close();
+    }
+
+    const wsUrl = process.env.NODE_ENV === "production"
+      ? `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}/ws`
+      : "ws://localhost:3001/ws";
+
+    const ws = new WebSocket(wsUrl);
+    wsRef.current = ws;
+
+    ws.onmessage = (event) => {
       try {
-        const res = await fetch("/api/evaluation/status");
-        const statusData = await res.json();
-        if (statusData.status === "complete") {
-          clearInterval(interval);
-          setIsRunning(false);
-          setSelectedRunId(runId);
-          await fetchHistory();
-          await fetchReport(runId);
-        } else if (statusData.status === "failed") {
-          clearInterval(interval);
-          setIsRunning(false);
-        } else if (statusData.status === "running") {
-          setProgress({ current: statusData.currentPromptIndex, total: statusData.totalPrompts, currentPromptId: statusData.currentPromptId, status: "running" });
+        const payload = JSON.parse(event.data);
+        if (payload.type === "status") {
+          const statusData = payload.data;
+          
+          if (statusData.runId === runId) {
+            if (statusData.status === "complete") {
+              setIsRunning(false);
+              setSelectedRunId(runId);
+              ws.close();
+              Promise.resolve().then(() => fetchHistory());
+              Promise.resolve().then(() => fetchReport(runId));
+            } else if (statusData.status === "failed") {
+              setIsRunning(false);
+              setError(statusData.error || "Evaluation run failed.");
+              ws.close();
+            } else if (statusData.status === "running") {
+              setProgress({
+                current: statusData.currentPromptIndex,
+                total: statusData.totalPrompts,
+                currentPromptId: statusData.currentPromptId,
+                status: "running"
+              });
+            }
+          }
         }
       } catch (err) {
-        console.error("Poll error:", err);
+        console.error("Failed parsing WS message:", err);
       }
-    }, 1000);
+    };
+
+    ws.onerror = (err) => {
+      console.error("WebSocket error:", err);
+    };
+
+    ws.onclose = () => {
+      wsRef.current = null;
+    };
   };
 
   const triggerPrint = () => window.print();
 
   // Filter prompt ledger rows
   const filteredResults = report?.results.filter(r => {
-    const matchesCategory = filterCategory === "all" || r.category === filterCategory;
+    const parentCategory = r.promptId.startsWith("f") ? "factual" : 
+                           r.promptId.startsWith("a") ? "adversarial" : 
+                           r.promptId.startsWith("b") ? "bias" : "";
+    const matchesCategory = filterCategory === "all" || parentCategory === filterCategory;
     const matchesSearch = r.prompt.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           r.responseA.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           r.responseB.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   }) || [];
+
+  const progressPercentage = progress.total > 0 ? Math.round((progress.current / progress.total) * 100) : 0;
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6 text-left print:p-0 transition-all duration-300 bg-[#0a0a0a] text-[#e0e0e0]">
@@ -164,15 +219,15 @@ export default function BenchmarkSuite() {
             <div className="w-12 h-12 rounded-full border-4 border-neutral-400 border-t-transparent animate-spin shrink-0" />
             <div>
               <span className="text-sm font-bold text-neutral-100 block">Synthesizing Comparative Grading Run...</span>
-              <p className="text-xs text-neutral-500 mt-1 font-mono">Currently running grade on prompt ID: <strong className="text-amber-400">{progress.currentPromptId}</strong></p>
+              <p className="text-xs text-neutral-500 mt-1 font-mono">Currently running grade on prompt ID: <strong className="text-amber-400">{progress.currentPromptId || "Loading..."}</strong></p>
             </div>
           </div>
           <div className="w-full md:w-80 text-right space-y-1">
             <div className="flex justify-between text-2xs font-bold text-neutral-500 font-mono uppercase">
-              <span>Progress Index</span><span>{Math.round((progress.current / progress.total) * 100)}% ({progress.current}/{progress.total})</span>
+              <span>Progress Index</span><span>{progressPercentage}% ({progress.current}/{progress.total})</span>
             </div>
             <div className="w-full h-2 bg-[#0a0a0a] rounded-full overflow-hidden">
-              <div className="h-full bg-neutral-100 transition-all duration-300 rounded-full" style={{ width: `${(progress.current / progress.total) * 100}%` }} />
+              <div className="h-full bg-neutral-100 transition-all duration-300 rounded-full" style={{ width: `${progressPercentage}%` }} />
             </div>
           </div>
         </div>
@@ -203,7 +258,7 @@ export default function BenchmarkSuite() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 print:grid-cols-2">
 
             {/* Hallucination Rate */}
-            <div className="bg-[#121212]/80 border border-neutral-900 rounded-2xl p-5 flex flex-col justify-between h-40 shadow-md print:bg-white print:border-neutral-300 print:text-black">
+            <div className="bg-[#121212]/80 border border-neutral-900 rounded-2xl p-5 flex flex-col justify-between min-h-[200px] shadow-md print:bg-white print:border-neutral-300 print:text-black">
               <div>
                 <div className="flex justify-between items-center">
                   <span className="text-2xs font-extrabold uppercase tracking-wider text-neutral-400">Hallucination Rate (%)</span>
@@ -226,7 +281,7 @@ export default function BenchmarkSuite() {
             </div>
 
             {/* Jailbreak Refusal Index */}
-            <div className="bg-[#121212]/80 border border-neutral-900 rounded-2xl p-5 flex flex-col justify-between h-40 shadow-md print:bg-white print:border-neutral-300 print:text-black">
+            <div className="bg-[#121212]/80 border border-neutral-900 rounded-2xl p-5 flex flex-col justify-between min-h-[200px] shadow-md print:bg-white print:border-neutral-300 print:text-black">
               <div>
                 <div className="flex justify-between items-center">
                   <span className="text-2xs font-extrabold uppercase tracking-wider text-neutral-400">Jailbreak Refusal Index</span>
@@ -249,7 +304,7 @@ export default function BenchmarkSuite() {
             </div>
 
             {/* Model Comparative Scores (Safety + Bias) */}
-            <div className="bg-[#121212]/80 border border-neutral-900 rounded-2xl p-5 flex flex-col justify-between h-40 shadow-md print:bg-white print:border-neutral-300 print:text-black">
+            <div className="bg-[#121212]/80 border border-neutral-900 rounded-2xl p-5 flex flex-col justify-between min-h-[200px] shadow-md print:bg-white print:border-neutral-300 print:text-black">
               <div>
                 <div className="flex justify-between items-center">
                   <span className="text-2xs font-extrabold uppercase tracking-wider text-neutral-400">Model Comparative Scores</span>
@@ -278,7 +333,7 @@ export default function BenchmarkSuite() {
             </div>
 
             {/* Inference Latency */}
-            <div className="bg-[#121212]/80 border border-neutral-900 rounded-2xl p-5 flex flex-col justify-between h-40 shadow-md print:bg-white print:border-neutral-300 print:text-black">
+            <div className="bg-[#121212]/80 border border-neutral-900 rounded-2xl p-5 flex flex-col justify-between min-h-[200px] shadow-md print:bg-white print:border-neutral-300 print:text-black">
               <div>
                 <div className="flex justify-between items-center">
                   <span className="text-2xs font-extrabold uppercase tracking-wider text-neutral-400">Average Inference Latency</span>
@@ -294,7 +349,7 @@ export default function BenchmarkSuite() {
             </div>
 
             {/* Token Cost Projections */}
-            <div className="bg-[#121212]/80 border border-neutral-900 rounded-2xl p-5 flex flex-col justify-between h-40 shadow-md print:bg-white print:border-neutral-300 print:text-black col-span-1 md:col-span-1 lg:col-span-2 print:col-span-2">
+            <div className="bg-[#121212]/80 border border-neutral-900 rounded-2xl p-5 flex flex-col justify-between min-h-[200px] shadow-md print:bg-white print:border-neutral-300 print:text-black col-span-1 md:col-span-1 lg:col-span-2 print:col-span-2">
               <div>
                 <div className="flex justify-between items-center">
                   <span className="text-2xs font-extrabold uppercase tracking-wider text-neutral-400">Token Cost Projections</span>
@@ -459,6 +514,7 @@ export default function BenchmarkSuite() {
           </div>
         </div>
       )}
+      {error && <Alert message={error} onClose={() => setError(null)} />}
     </div>
   );
 }

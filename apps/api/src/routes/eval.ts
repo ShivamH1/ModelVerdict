@@ -17,7 +17,8 @@ router.post('/run', async (req, res) => {
 });
 
 router.get('/status', (req, res) => {
-  const status = getEvaluationStatus(); 
+  const runId = req.query.runId as string | undefined;
+  const status = getEvaluationStatus(runId); 
   res.json(status);
 });
 

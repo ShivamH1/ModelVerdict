@@ -58,10 +58,20 @@ router.post('/:id/chat', async (req, res) => {
     const [resA, resB] = await Promise.all([
       generateResponse(modelA, prompt, session.messagesA, {
         customApiKey, customBaseUrl, customModelName,
-      }),
+      }).catch(e => ({
+        content: `ERROR: ${e.message}`,
+        usage: { promptTokens: 0, completionTokens: 0 },
+        latencyMs: 0,
+        provider: 'custom' as const
+      })),
       generateResponse(modelB, prompt, session.messagesB, {
         customApiKey, customBaseUrl, customModelName,
-      })
+      }).catch(e => ({
+        content: `ERROR: ${e.message}`,
+        usage: { promptTokens: 0, completionTokens: 0 },
+        latencyMs: 0,
+        provider: 'custom' as const
+      }))
     ]);
 
     const outputCheckA = checkOutputGuardrail(resA.content);
