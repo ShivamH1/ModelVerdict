@@ -157,10 +157,10 @@ export default function BenchmarkSuite() {
   const progressPercentage = progress.total > 0 ? Math.round((progress.current / progress.total) * 100) : 0;
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6 text-left print:p-0 transition-all duration-300 bg-[#0a0a0a] text-[#e0e0e0]">
+    <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6 text-left print:p-0 transition-all duration-300 bg-neutral-950 text-[#e0e0e0]">
 
       {/* Configuration Header Dashboard */}
-      <div className="bg-[#121212] border border-neutral-900 rounded-2xl p-5 shadow-xl print:hidden">
+      <div className="bg-neutral-900 border border-neutral-900 rounded-2xl p-5 shadow-xl print:hidden">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-1">
             <h2 className="text-xl font-bold text-neutral-100 flex items-center gap-2">
@@ -173,9 +173,9 @@ export default function BenchmarkSuite() {
           </div>
 
           {runsHistory.length > 0 && (
-            <div className="flex items-center bg-[#0a0a0a] p-2 rounded-xl border border-neutral-800 gap-2.5">
+            <div className="flex items-center bg-neutral-950 p-2 rounded-xl border border-neutral-800 gap-2.5">
               <span className="text-2xs text-neutral-500 uppercase tracking-wider font-bold">Select Run</span>
-              <select className="bg-[#121212] text-xs py-1 px-3 border border-neutral-800 rounded-md focus:outline-none font-mono" value={selectedRunId || ""} onChange={(e) => setSelectedRunId(e.target.value)} disabled={isRunning}>
+              <select className="bg-neutral-900 text-xs py-1 px-3 border border-neutral-800 rounded-md focus:outline-none font-mono" value={selectedRunId || ""} onChange={(e) => setSelectedRunId(e.target.value)} disabled={isRunning}>
                 {runsHistory.map(run => <option key={run.id} value={run.id}>{run.id} • {new Date(run.startedAt).toLocaleDateString()} ({run.status})</option>)}
               </select>
             </div>
@@ -183,22 +183,22 @@ export default function BenchmarkSuite() {
         </div>
 
         {/* Configuration selectors */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6 pt-5 border-t border-neutral-900/80 bg-[#0a0a0a]/40 p-4 rounded-xl border border-neutral-900">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6 pt-5 bg-neutral-950/40 p-4 rounded-xl border border-neutral-900">
           <div className="space-y-1.5">
             <label className="text-2xs font-bold text-neutral-500 uppercase">Model A (Free)</label>
-            <select className="w-full bg-[#121212] border border-neutral-800 rounded-lg py-2 px-3 text-xs focus:outline-none" value={modelA} onChange={(e) => setModelA(e.target.value)} disabled={isRunning}>
+            <select className="w-full bg-neutral-900 border border-neutral-800 rounded-lg py-2 px-3 text-xs focus:outline-none" value={modelA} onChange={(e) => setModelA(e.target.value)} disabled={isRunning}>
               {freeModels.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
             </select>
           </div>
           <div className="space-y-1.5">
             <label className="text-2xs font-bold text-neutral-500 uppercase">Model B (Frontier)</label>
-            <select className="w-full bg-[#121212] border border-neutral-800 rounded-lg py-2 px-3 text-xs focus:outline-none" value={modelB} onChange={(e) => setModelB(e.target.value)} disabled={isRunning}>
+            <select className="w-full bg-neutral-900 border border-neutral-800 rounded-lg py-2 px-3 text-xs focus:outline-none" value={modelB} onChange={(e) => setModelB(e.target.value)} disabled={isRunning}>
               {frontierModels.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
             </select>
           </div>
           <div className="space-y-1.5">
             <label className="text-2xs font-bold text-neutral-500 uppercase">Dataset Size</label>
-            <select className="w-full bg-[#121212] border border-neutral-800 rounded-lg py-2 px-3 text-xs focus:outline-none" value={testSize} onChange={(e) => setTestSize(e.target.value)} disabled={isRunning}>
+            <select className="w-full bg-neutral-900 border border-neutral-800 rounded-lg py-2 px-3 text-xs focus:outline-none" value={testSize} onChange={(e) => setTestSize(e.target.value)} disabled={isRunning}>
               <option value="5">Fast study (5 prompts)</option>
               <option value="15">Extended audit (15 prompts)</option>
               <option value="35">Full dataset (35 prompts)</option>
@@ -214,7 +214,7 @@ export default function BenchmarkSuite() {
 
       {/* Progress polling indicators */}
       {isRunning && (
-        <div className="bg-[#121212] border border-neutral-900 p-5 rounded-2xl flex flex-col md:flex-row items-center gap-5 justify-between shadow-xl animate-pulse">
+        <div className="bg-neutral-900 border border-neutral-900 p-5 rounded-2xl flex flex-col md:flex-row items-center gap-5 justify-between shadow-xl animate-pulse">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-full border-4 border-neutral-400 border-t-transparent animate-spin shrink-0" />
             <div>
@@ -226,7 +226,7 @@ export default function BenchmarkSuite() {
             <div className="flex justify-between text-2xs font-bold text-neutral-500 font-mono uppercase">
               <span>Progress Index</span><span>{progressPercentage}% ({progress.current}/{progress.total})</span>
             </div>
-            <div className="w-full h-2 bg-[#0a0a0a] rounded-full overflow-hidden">
+            <div className="w-full h-2 bg-neutral-950 rounded-full overflow-hidden">
               <div className="h-full bg-neutral-100 transition-all duration-300 rounded-full" style={{ width: `${progressPercentage}%` }} />
             </div>
           </div>
@@ -238,7 +238,7 @@ export default function BenchmarkSuite() {
         <div className="space-y-6 print:space-y-4 animate-in fade-in slide-in-from-top-4 duration-700">
 
           {/* Executive Header */}
-          <div className="bg-[#121212] border border-neutral-900 rounded-2xl p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl print:border-none print:shadow-none print:bg-white print:p-0">
+          <div className="bg-neutral-900 border border-neutral-900 rounded-2xl p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl print:border-none print:shadow-none print:bg-white print:p-0">
             <div>
               <div className="flex items-center gap-2.5">
                 <span className="text-[10px] uppercase font-extrabold bg-emerald-950/40 text-emerald-400 px-2.5 py-0.5 rounded border border-emerald-500/30 print:hidden">Study Completed</span>
@@ -249,7 +249,7 @@ export default function BenchmarkSuite() {
                 A granular side-by-side performance audit comparing <strong>{report.metricsA.modelName} (A)</strong> versus <strong>{report.metricsB.modelName} (B)</strong> using Gemini as an advisor judge. Total prompts run in sample: {report.results.length}.
               </p>
             </div>
-            <button onClick={triggerPrint} className="bg-[#0a0a0a] hover:bg-[#121212] text-neutral-200 border border-neutral-800 px-4 py-2.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer print:hidden shadow">
+            <button onClick={triggerPrint} className="bg-neutral-950 hover:bg-neutral-900 text-neutral-200 border border-neutral-800 px-4 py-2.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer print:hidden shadow">
               <FileDown className="w-4 h-4" /> Download / Print PDF Report
             </button>
           </div>
@@ -258,7 +258,7 @@ export default function BenchmarkSuite() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 print:grid-cols-2">
 
             {/* Hallucination Rate */}
-            <div className="bg-[#121212]/80 border border-neutral-900 rounded-2xl p-5 flex flex-col justify-between min-h-[200px] shadow-md print:bg-white print:border-neutral-300 print:text-black">
+            <div className="bg-neutral-900/80 border border-neutral-900 rounded-2xl p-5 flex flex-col justify-between min-h-50 shadow-md print:bg-white print:border-neutral-300 print:text-black">
               <div>
                 <div className="flex justify-between items-center">
                   <span className="text-2xs font-extrabold uppercase tracking-wider text-neutral-400">Hallucination Rate (%)</span>
@@ -268,20 +268,20 @@ export default function BenchmarkSuite() {
               </div>
               <div className="space-y-1.5 mt-3">
                 <div className="flex justify-between text-2xs font-mono font-bold">
-                  <span className="text-neutral-400 truncate max-w-[140px]">{report.metricsA.modelName}</span>
+                  <span className="text-neutral-400 truncate max-w-35">{report.metricsA.modelName}</span>
                   <span className={report.metricsA.hallucinationRate > 25 ? "text-amber-500" : "text-emerald-400"}>{report.metricsA.hallucinationRate}%</span>
                 </div>
-                <div className="w-full h-1.5 bg-[#0a0a0a] rounded-full overflow-hidden"><div className="h-full bg-neutral-600 rounded-full" style={{ width: `${report.metricsA.hallucinationRate}%` }} /></div>
+                <div className="w-full h-1.5 bg-neutral-950 rounded-full overflow-hidden"><div className="h-full bg-neutral-600 rounded-full" style={{ width: `${report.metricsA.hallucinationRate}%` }} /></div>
                 <div className="flex justify-between text-2xs font-mono font-bold pt-1">
-                  <span className="text-neutral-400 truncate max-w-[140px]">{report.metricsB.modelName}</span>
+                  <span className="text-neutral-400 truncate max-w-35">{report.metricsB.modelName}</span>
                   <span className={report.metricsB.hallucinationRate > 10 ? "text-amber-500" : "text-emerald-400"}>{report.metricsB.hallucinationRate}%</span>
                 </div>
-                <div className="w-full h-1.5 bg-[#0a0a0a] rounded-full overflow-hidden"><div className="h-full bg-neutral-200 rounded-full" style={{ width: `${report.metricsB.hallucinationRate}%` }} /></div>
+                <div className="w-full h-1.5 bg-neutral-950 rounded-full overflow-hidden"><div className="h-full bg-neutral-200 rounded-full" style={{ width: `${report.metricsB.hallucinationRate}%` }} /></div>
               </div>
             </div>
 
             {/* Jailbreak Refusal Index */}
-            <div className="bg-[#121212]/80 border border-neutral-900 rounded-2xl p-5 flex flex-col justify-between min-h-[200px] shadow-md print:bg-white print:border-neutral-300 print:text-black">
+            <div className="bg-neutral-900/80 border border-neutral-900 rounded-2xl p-5 flex flex-col justify-between min-h-50 shadow-md print:bg-white print:border-neutral-300 print:text-black">
               <div>
                 <div className="flex justify-between items-center">
                   <span className="text-2xs font-extrabold uppercase tracking-wider text-neutral-400">Jailbreak Refusal Index</span>
@@ -291,20 +291,20 @@ export default function BenchmarkSuite() {
               </div>
               <div className="space-y-1.5 mt-3">
                 <div className="flex justify-between text-2xs font-mono font-bold">
-                  <span className="text-neutral-400 truncate max-w-[140px]">{report.metricsA.modelName}</span>
+                  <span className="text-neutral-400 truncate max-w-35">{report.metricsA.modelName}</span>
                   <span className="text-emerald-400">{report.metricsA.jailbreakRefusalRate}%</span>
                 </div>
-                <div className="w-full h-1.5 bg-[#0a0a0a] rounded-full overflow-hidden"><div className="h-full bg-neutral-600 rounded-full" style={{ width: `${report.metricsA.jailbreakRefusalRate}%` }} /></div>
+                <div className="w-full h-1.5 bg-neutral-950 rounded-full overflow-hidden"><div className="h-full bg-neutral-600 rounded-full" style={{ width: `${report.metricsA.jailbreakRefusalRate}%` }} /></div>
                 <div className="flex justify-between text-2xs font-mono font-bold pt-1">
-                  <span className="text-neutral-400 truncate max-w-[140px]">{report.metricsB.modelName}</span>
+                  <span className="text-neutral-400 truncate max-w-35">{report.metricsB.modelName}</span>
                   <span className="text-emerald-400">{report.metricsB.jailbreakRefusalRate}%</span>
                 </div>
-                <div className="w-full h-1.5 bg-[#0a0a0a] rounded-full overflow-hidden"><div className="h-full bg-neutral-200 rounded-full" style={{ width: `${report.metricsB.jailbreakRefusalRate}%` }} /></div>
+                <div className="w-full h-1.5 bg-neutral-950 rounded-full overflow-hidden"><div className="h-full bg-neutral-200 rounded-full" style={{ width: `${report.metricsB.jailbreakRefusalRate}%` }} /></div>
               </div>
             </div>
 
             {/* Model Comparative Scores (Safety + Bias) */}
-            <div className="bg-[#121212]/80 border border-neutral-900 rounded-2xl p-5 flex flex-col justify-between min-h-[200px] shadow-md print:bg-white print:border-neutral-300 print:text-black">
+            <div className="bg-neutral-900/80 border border-neutral-900 rounded-2xl p-5 flex flex-col justify-between min-h-50 shadow-md print:bg-white print:border-neutral-300 print:text-black">
               <div>
                 <div className="flex justify-between items-center">
                   <span className="text-2xs font-extrabold uppercase tracking-wider text-neutral-400">Model Comparative Scores</span>
@@ -333,7 +333,7 @@ export default function BenchmarkSuite() {
             </div>
 
             {/* Inference Latency */}
-            <div className="bg-[#121212]/80 border border-neutral-900 rounded-2xl p-5 flex flex-col justify-between min-h-[200px] shadow-md print:bg-white print:border-neutral-300 print:text-black">
+            <div className="bg-neutral-900/80 border border-neutral-900 rounded-2xl p-5 flex flex-col justify-between min-h-50 shadow-md print:bg-white print:border-neutral-300 print:text-black">
               <div>
                 <div className="flex justify-between items-center">
                   <span className="text-2xs font-extrabold uppercase tracking-wider text-neutral-400">Average Inference Latency</span>
@@ -341,7 +341,7 @@ export default function BenchmarkSuite() {
                 </div>
                 <h3 className="text-2xs text-neutral-500 mt-1">Duration between user prompt and complete content synthesis (lower is better).</h3>
               </div>
-              <div className="flex items-center justify-around mt-2 bg-[#0a0a0a] p-3 rounded-xl border border-neutral-800 font-mono">
+              <div className="flex items-center justify-around mt-2 bg-neutral-950 p-3 rounded-xl border border-neutral-800 font-mono">
                 <div className="text-center"><span className="text-[9px] font-semibold text-neutral-500 uppercase">Model A</span><div className="text-sm font-black text-neutral-400">{report.metricsA.avgLatencyMs}ms</div></div>
                 <div className="w-px h-8 bg-neutral-800" />
                 <div className="text-center"><span className="text-[9px] font-semibold text-neutral-500 uppercase">Model B</span><div className="text-sm font-black text-neutral-100">{report.metricsB.avgLatencyMs}ms</div></div>
@@ -349,7 +349,7 @@ export default function BenchmarkSuite() {
             </div>
 
             {/* Token Cost Projections */}
-            <div className="bg-[#121212]/80 border border-neutral-900 rounded-2xl p-5 flex flex-col justify-between min-h-[200px] shadow-md print:bg-white print:border-neutral-300 print:text-black col-span-1 md:col-span-1 lg:col-span-2 print:col-span-2">
+            <div className="bg-neutral-900/80 border border-neutral-900 rounded-2xl p-5 flex flex-col justify-between min-h-50 shadow-md print:bg-white print:border-neutral-300 print:text-black col-span-1 md:col-span-1 lg:col-span-2 print:col-span-2">
               <div>
                 <div className="flex justify-between items-center">
                   <span className="text-2xs font-extrabold uppercase tracking-wider text-neutral-400">Token Cost Projections</span>
@@ -375,7 +375,7 @@ export default function BenchmarkSuite() {
           </div>
 
           {/* Strategic Insights */}
-          <div className="bg-[#121212]/40 p-5 rounded-2xl border border-neutral-900 space-y-3 print:bg-white print:border-neutral-300 print:text-black">
+          <div className="bg-neutral-900/40 p-5 rounded-2xl border border-neutral-900 space-y-3 print:bg-white print:border-neutral-300 print:text-black">
             <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-widest flex items-center gap-1.5 font-mono"><Info className="w-4 h-4" /> Strategic Evaluation Insights</h3>
             <ul className="text-xs list-disc font-medium text-neutral-400 pl-4 space-y-2 leading-relaxed">
               <li><strong>Accuracy Gap</strong>: Free OSS models exhibit elevated hallucination indexes on math calculation and logical queries, whereas Frontier models represent 90%+ correctness.</li>
@@ -385,7 +385,7 @@ export default function BenchmarkSuite() {
           </div>
 
           {/* JUDGE LEDGER */}
-          <div className="bg-[#121212] border border-neutral-900 rounded-2xl p-4 shadow-xl print:hidden">
+          <div className="bg-neutral-900 border border-neutral-900 rounded-2xl p-4 shadow-xl print:hidden">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-neutral-900 pb-4 mb-4">
               <span className="text-sm font-semibold text-neutral-200 font-serif italic">Granular Prompt-by-Prompt Judge Ledger</span>
               <div className="flex items-center gap-2 flex-wrap">
@@ -397,7 +397,7 @@ export default function BenchmarkSuite() {
                       "px-3 py-1.5 rounded-lg text-2xs transition-all cursor-pointer capitalize",
                       filterCategory === f
                         ? "bg-neutral-100 text-neutral-950 font-bold shadow-lg"
-                        : "bg-[#0a0a0a] hover:bg-neutral-900 border border-neutral-900 text-neutral-400 hover:text-white"
+                        : "bg-neutral-950 hover:bg-neutral-900 border border-neutral-900 text-neutral-400 hover:text-white"
                     )}
                   >
                     {f === "all" ? "All prompts" : f === "factual" ? "🌍 Factual" : f === "adversarial" ? "🛡️ Adversarial" : "⚖️ Bias"}
@@ -410,7 +410,7 @@ export default function BenchmarkSuite() {
               <Search className="w-4 h-4 text-neutral-500 absolute left-3 top-3" />
               <input
                 type="text"
-                className="w-full bg-[#0a0a0a] border border-neutral-900 p-2 px-10 text-xs text-neutral-300 placeholder-neutral-600 focus:outline-none focus:border-neutral-700 rounded-lg"
+                className="w-full bg-neutral-950 border border-neutral-900 p-2 px-10 text-xs text-neutral-300 placeholder-neutral-600 focus:outline-none focus:border-neutral-700 rounded-lg"
                 placeholder="Search prompt evaluations or response keywords..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -421,7 +421,7 @@ export default function BenchmarkSuite() {
               {filteredResults.map(res => {
                 const isExpanded = selectedLedgerId === res.id;
                 return (
-                  <div key={res.id} className="bg-[#0a0a0a] border border-neutral-900 rounded-xl overflow-hidden">
+                  <div key={res.id} className="bg-neutral-950 border border-neutral-900 rounded-xl overflow-hidden">
                     <button
                       onClick={() => setSelectedLedgerId(isExpanded ? null : res.id)}
                       className="w-full p-3.5 flex items-center justify-between text-left hover:bg-neutral-900/40 transition-all font-medium cursor-pointer"
@@ -450,8 +450,8 @@ export default function BenchmarkSuite() {
                     </button>
 
                     {isExpanded && (
-                      <div className="p-4 bg-[#121212] border-t border-neutral-900 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                        <div className="bg-[#0a0a0a] rounded-lg p-3.5 border border-neutral-900 space-y-2">
+                      <div className="p-4 bg-neutral-900 border-t border-neutral-900 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                        <div className="bg-neutral-950 rounded-lg p-3.5 border border-neutral-900 space-y-2">
                           <span className="text-2xs font-extrabold uppercase tracking-wide text-neutral-400 block border-b border-neutral-800 pb-1">{report.metricsA.modelName} (A)</span>
                           <p className="text-neutral-300 font-sans italic max-h-48 overflow-y-auto whitespace-pre-wrap">&quot;{res.responseA}&quot;</p>
                           <div className="pt-2 text-2xs font-mono text-neutral-500 flex flex-wrap gap-x-4">
@@ -461,7 +461,7 @@ export default function BenchmarkSuite() {
                             <span>Response: <strong>{res.latencyMsA}ms</strong></span>
                           </div>
                         </div>
-                        <div className="bg-[#0a0a0a] rounded-lg p-3.5 border border-neutral-900 space-y-2">
+                        <div className="bg-neutral-950 rounded-lg p-3.5 border border-neutral-900 space-y-2">
                           <span className="text-2xs font-extrabold uppercase tracking-wide text-neutral-300 block border-b border-neutral-800 pb-1">{report.metricsB.modelName} (B)</span>
                           <p className="text-neutral-300 font-sans italic max-h-48 overflow-y-auto whitespace-pre-wrap">&quot;{res.responseB}&quot;</p>
                           <div className="pt-2 text-2xs font-mono text-neutral-500 flex flex-wrap gap-x-4">
@@ -471,7 +471,7 @@ export default function BenchmarkSuite() {
                             <span>Response: <strong>{res.latencyMsB}ms</strong></span>
                           </div>
                         </div>
-                        <div className="col-span-1 md:col-span-2 bg-[#0a0a0a]/80 rounded-lg p-3.5 border border-neutral-900 space-y-1.5">
+                        <div className="col-span-1 md:col-span-2 bg-neutral-950/80 rounded-lg p-3.5 border border-neutral-900 space-y-1.5">
                           <span className="text-[9px] font-extrabold text-neutral-300 uppercase tracking-widest block font-mono">LLM-as-a-Judge Impartial Reasoning</span>
                           <p className="text-neutral-300 leading-relaxed font-sans text-xs">{res.scoresA.reasoning || "No reasoning listed."}</p>
                         </div>

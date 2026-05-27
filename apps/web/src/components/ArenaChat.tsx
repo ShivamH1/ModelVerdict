@@ -284,8 +284,8 @@ export default function ArenaChat() {
       (session.messagesB && session.messagesB.length > 0));
 
   return (
-    <div className="flex flex-col flex-1 h-full bg-[#0a0a0a] text-[#e0e0e0] font-sans antialiased relative">
-      <div className="px-4 py-3 bg-[#121212]/30 border-b border-neutral-900 flex justify-between items-center shrink-0">
+    <div className="flex flex-col flex-1 h-full bg-neutral-950 text-[#e0e0e0] font-sans antialiased relative">
+      <div className="px-4 py-3 bg-neutral-900/30 border-b border-neutral-900 flex justify-between items-center shrink-0">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 text-xs text-neutral-400 font-mono tracking-tight font-medium select-none">
             <span>⚔️ Battle Arena</span>
@@ -362,7 +362,7 @@ export default function ArenaChat() {
           <div className="pt-3 border-t border-neutral-900 w-full max-w-3xl mx-auto select-none">
             <form
               onSubmit={handleSend}
-              className="flex items-center gap-2 bg-neutral-900/80 rounded-[16px] border border-neutral-800 p-2 focus-within:border-neutral-700 transition-all"
+              className="flex items-center gap-2 bg-neutral-900/80 rounded-2xl border border-neutral-800 p-2 focus-within:border-neutral-700 transition-all"
             >
               <input
                 type="text"

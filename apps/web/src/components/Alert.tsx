@@ -55,7 +55,7 @@ export function Alert({ message, type = "error", onClose, duration = 5000 }: Ale
         )}
       >
         <div className="shrink-0">{currentStyle.icon}</div>
-        <div className="flex-1 text-[11px] font-mono leading-relaxed break-words pr-2">
+        <div className="flex-1 text-[11px] font-mono leading-relaxed wrap-break-word pr-2">
           {message}
         </div>
         <button

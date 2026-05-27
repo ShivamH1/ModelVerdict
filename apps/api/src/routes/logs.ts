@@ -11,13 +11,25 @@ router.get('/', async (req, res) => {
 
     const [logs, total] = await Promise.all([
       prisma.inferenceLog.findMany({
-        where: { status: 'success' },
+        where: { 
+          status: 'success',
+          OR: [
+            { inputTokens: { gt: 0 } },
+            { outputTokens: { gt: 0 } }
+          ]
+        },
         orderBy: { timestamp: 'desc' },
         take: limit,
         skip,
       }),
       prisma.inferenceLog.count({
-        where: { status: 'success' }
+        where: { 
+          status: 'success',
+          OR: [
+            { inputTokens: { gt: 0 } },
+            { outputTokens: { gt: 0 } }
+          ]
+        }
       })
     ]);
 

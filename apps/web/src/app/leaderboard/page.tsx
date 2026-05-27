@@ -100,7 +100,7 @@ export default function LeaderboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             
             {/* CARD 1: TOP MODEL */}
-            <div className="relative overflow-hidden bg-gradient-to-br from-amber-500/10 via-neutral-900 to-neutral-950 p-5 rounded-2xl border border-amber-500/20 shadow-xl flex flex-col justify-between min-h-[140px]">
+            <div className="relative overflow-hidden bg-linear-to-br from-amber-500/10 via-neutral-900 to-neutral-950 p-5 rounded-2xl border border-amber-500/20 shadow-xl flex flex-col justify-between min-h-35">
               <div className="absolute top-0 right-0 p-6 opacity-10">
                 <Trophy className="w-24 h-24 text-amber-500" />
               </div>
@@ -120,7 +120,7 @@ export default function LeaderboardPage() {
             </div>
 
             {/* CARD 2: TOTAL EVALUATIONS */}
-            <div className="bg-neutral-900/40 p-5 rounded-2xl border border-neutral-900 shadow-lg flex flex-col justify-between min-h-[140px]">
+            <div className="bg-neutral-900/40 p-5 rounded-2xl border border-neutral-900 shadow-lg flex flex-col justify-between min-h-35">
               <div className="space-y-1">
                 <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-mono font-bold flex items-center gap-1.5">
                   <Users className="w-3.5 h-3.5" />
@@ -136,7 +136,7 @@ export default function LeaderboardPage() {
             </div>
 
             {/* CARD 3: SYSTEM INTEGRITY */}
-            <div className="bg-neutral-900/40 p-5 rounded-2xl border border-neutral-900 shadow-lg flex flex-col justify-between min-h-[140px]">
+            <div className="bg-neutral-900/40 p-5 rounded-2xl border border-neutral-900 shadow-lg flex flex-col justify-between min-h-35">
               <div className="space-y-1">
                 <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-mono font-bold flex items-center gap-1.5">
                   <ShieldCheck className="w-3.5 h-3.5" />
