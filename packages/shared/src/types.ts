@@ -1,14 +1,14 @@
 export enum ModelType {
   FREE = "FREE",
-  FRONTIER = "FRONTIER"
+  FRONTIER = "FRONTIER",
 }
 
 export interface ModelConfig {
   id: string;
   name: string;
-  provider: 'openrouter' | 'huggingface';
+  provider: "openrouter" | "huggingface";
   modelName: string;
-  type: 'FREE' | 'FRONTIER';
+  type: "FREE" | "FRONTIER";
   description: string;
   baseUrl: string;
   apiKeyEnv: string;

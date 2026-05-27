@@ -27,10 +27,15 @@ export function Nav() {
               "px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-all text-2xs cursor-pointer",
               isActive
                 ? "bg-neutral-800 text-neutral-100 font-semibold border-b border-neutral-700/40"
-                : "text-neutral-400 hover:text-neutral-200"
+                : "text-neutral-400 hover:text-neutral-200",
             )}
           >
-            <Icon className={cn("w-3.5 h-3.5", isActive ? "text-neutral-100" : "text-neutral-400")} />
+            <Icon
+              className={cn(
+                "w-3.5 h-3.5",
+                isActive ? "text-neutral-100" : "text-neutral-400",
+              )}
+            />
             {label}
           </Link>
         );

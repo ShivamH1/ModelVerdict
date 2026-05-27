@@ -12,13 +12,13 @@ interface BallotPanelProps {
   getDisplayHeader: (isModelA: boolean) => string;
 }
 
-export function BallotPanel({ 
-  session, 
-  loading, 
-  isStreaming, 
-  submitVote, 
-  revealSession, 
-  getDisplayHeader 
+export function BallotPanel({
+  session,
+  loading,
+  isStreaming,
+  submitVote,
+  revealSession,
+  getDisplayHeader,
 }: BallotPanelProps) {
   if (session.votedFor) {
     return (
@@ -28,36 +28,66 @@ export function BallotPanel({
         </div>
         <div className="flex justify-center items-center gap-6 pt-1">
           <div className="flex flex-col items-center">
-            <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-mono font-bold">Assistant A</span>
-            <strong className="text-sm text-neutral-200 mt-1 font-mono">{getDisplayHeader(true)}</strong>
+            <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-mono font-bold">
+              Assistant A
+            </span>
+            <strong className="text-sm text-neutral-200 mt-1 font-mono">
+              {getDisplayHeader(true)}
+            </strong>
             {session.eloDelta && (
-              <span className={cn(
-                "text-[10px] font-mono font-bold mt-0.5",
-                session.eloDelta.modelA > 0 ? "text-emerald-500" : session.eloDelta.modelA < 0 ? "text-rose-500" : "text-neutral-500"
-              )}>
-                {session.eloDelta.modelA >= 0 ? `+${session.eloDelta.modelA}` : session.eloDelta.modelA} Elo
+              <span
+                className={cn(
+                  "text-[10px] font-mono font-bold mt-0.5",
+                  session.eloDelta.modelA > 0
+                    ? "text-emerald-500"
+                    : session.eloDelta.modelA < 0
+                      ? "text-rose-500"
+                      : "text-neutral-500",
+                )}
+              >
+                {session.eloDelta.modelA >= 0
+                  ? `+${session.eloDelta.modelA}`
+                  : session.eloDelta.modelA}{" "}
+                Elo
               </span>
             )}
           </div>
           <div className="w-px h-8 bg-neutral-800" />
           <div className="flex flex-col items-center">
-            <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-mono font-bold">Assistant B</span>
-            <strong className="text-sm text-neutral-200 mt-1 font-mono">{getDisplayHeader(false)}</strong>
+            <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-mono font-bold">
+              Assistant B
+            </span>
+            <strong className="text-sm text-neutral-200 mt-1 font-mono">
+              {getDisplayHeader(false)}
+            </strong>
             {session.eloDelta && (
-              <span className={cn(
-                "text-[10px] font-mono font-bold mt-0.5",
-                session.eloDelta.modelB > 0 ? "text-emerald-500" : session.eloDelta.modelB < 0 ? "text-rose-500" : "text-neutral-500"
-              )}>
-                {session.eloDelta.modelB >= 0 ? `+${session.eloDelta.modelB}` : session.eloDelta.modelB} Elo
+              <span
+                className={cn(
+                  "text-[10px] font-mono font-bold mt-0.5",
+                  session.eloDelta.modelB > 0
+                    ? "text-emerald-500"
+                    : session.eloDelta.modelB < 0
+                      ? "text-rose-500"
+                      : "text-neutral-500",
+                )}
+              >
+                {session.eloDelta.modelB >= 0
+                  ? `+${session.eloDelta.modelB}`
+                  : session.eloDelta.modelB}{" "}
+                Elo
               </span>
             )}
           </div>
         </div>
         <p className="text-[10px] text-neutral-400 mt-2 font-medium">
-          {session.votedFor === "tie" && "🤝 You designated this round as an equal Tie."}
-          {session.votedFor === "both_bad" && "☠️ You audited both outputs as critically flawed."}
-          {session.votedFor === "A" && "🏆 Voted Assistant A as the superior, highly coherent outputs."}
-          {session.votedFor === "B" && "🏆 Voted Assistant B as the superior, highly coherent outputs."}
+          {session.votedFor === "tie" &&
+            "🤝 You designated this round as an equal Tie."}
+          {session.votedFor === "both_bad" &&
+            "☠️ You audited both outputs as critically flawed."}
+          {session.votedFor === "A" &&
+            "🏆 Voted Assistant A as the superior, highly coherent outputs."}
+          {session.votedFor === "B" &&
+            "🏆 Voted Assistant B as the superior, highly coherent outputs."}
         </p>
       </div>
     );
@@ -70,7 +100,7 @@ export function BallotPanel({
       <p className="text-[11px] text-neutral-400 font-mono tracking-tight font-medium">
         Which response was better? Select choice to reveal exact model names
       </p>
-      
+
       <div className="flex flex-wrap items-center justify-center gap-2.5 bg-neutral-900/80 p-1.5 rounded-xl border border-neutral-800 shadow-xl">
         <button
           onClick={() => submitVote("A")}

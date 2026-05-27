@@ -183,7 +183,8 @@ export default function ArenaChat() {
       }
     } catch (err) {
       console.error("Chat failure:", err);
-      const msg = err instanceof Error ? err.message : "Failed to send chat prompt.";
+      const msg =
+        err instanceof Error ? err.message : "Failed to send chat prompt.";
       setError(msg);
       setSession(previousSession);
       setLoading(false);
@@ -229,7 +230,7 @@ export default function ArenaChat() {
     if (blindMode && !session.isRevealed)
       return isModelA ? "Assistant A" : "Assistant B";
     const targetModelId = isModelA ? session.modelIdA : session.modelIdB;
-    const model = MODEL_CATALOG.find(m => m.id === targetModelId);
+    const model = MODEL_CATALOG.find((m) => m.id === targetModelId);
     return model ? model.name : targetModelId;
   };
 
@@ -237,9 +238,10 @@ export default function ArenaChat() {
     if (!session) return "";
     if (blindMode && !session.isRevealed) return "Anonymous Model Persona";
     const targetModelId = isModelA ? session.modelIdA : session.modelIdB;
-    const model = MODEL_CATALOG.find(m => m.id === targetModelId);
+    const model = MODEL_CATALOG.find((m) => m.id === targetModelId);
     if (model) {
-      const typeStr = model.type === "FRONTIER" ? "Frontier Class" : "Open Weight";
+      const typeStr =
+        model.type === "FRONTIER" ? "Frontier Class" : "Open Weight";
       return `${model.description || typeStr}`;
     }
     return "External Endpoint Override";
@@ -303,7 +305,6 @@ export default function ArenaChat() {
           </button>
         </div>
         <div className="flex items-center gap-2">
-
           <button
             onClick={initSession}
             disabled={loading}
@@ -319,8 +320,6 @@ export default function ArenaChat() {
           </button>
         </div>
       </div>
-
-
 
       <div className="flex-1 flex flex-col justify-between overflow-y-auto w-full max-w-7xl mx-auto px-4 py-6 md:px-8">
         {!hasMessages ? (
