@@ -1,6 +1,7 @@
 "use client";
 
 import { Session } from "@veritas/shared";
+import { cn } from "@/lib/utils";
 
 interface BallotPanelProps {
   session: Session;
@@ -29,11 +30,27 @@ export function BallotPanel({
           <div className="flex flex-col items-center">
             <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-mono font-bold">Assistant A</span>
             <strong className="text-sm text-neutral-200 mt-1 font-mono">{getDisplayHeader(true)}</strong>
+            {session.eloDelta && (
+              <span className={cn(
+                "text-[10px] font-mono font-bold mt-0.5",
+                session.eloDelta.modelA > 0 ? "text-emerald-500" : session.eloDelta.modelA < 0 ? "text-rose-500" : "text-neutral-500"
+              )}>
+                {session.eloDelta.modelA >= 0 ? `+${session.eloDelta.modelA}` : session.eloDelta.modelA} Elo
+              </span>
+            )}
           </div>
           <div className="w-px h-8 bg-neutral-800" />
           <div className="flex flex-col items-center">
             <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-mono font-bold">Assistant B</span>
             <strong className="text-sm text-neutral-200 mt-1 font-mono">{getDisplayHeader(false)}</strong>
+            {session.eloDelta && (
+              <span className={cn(
+                "text-[10px] font-mono font-bold mt-0.5",
+                session.eloDelta.modelB > 0 ? "text-emerald-500" : session.eloDelta.modelB < 0 ? "text-rose-500" : "text-neutral-500"
+              )}>
+                {session.eloDelta.modelB >= 0 ? `+${session.eloDelta.modelB}` : session.eloDelta.modelB} Elo
+              </span>
+            )}
           </div>
         </div>
         <p className="text-[10px] text-neutral-400 mt-2 font-medium">

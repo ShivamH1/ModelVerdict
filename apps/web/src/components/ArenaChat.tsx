@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Send, RefreshCw } from "lucide-react";
-import { Session } from "@veritas/shared";
+import { Session, MODEL_CATALOG } from "@veritas/shared";
 import { Alert } from "./Alert";
 import { ArenaWelcome } from "./arena/ArenaWelcome";
 import { BallotPanel } from "./arena/BallotPanel";
@@ -229,26 +229,20 @@ export default function ArenaChat() {
     if (blindMode && !session.isRevealed)
       return isModelA ? "Assistant A" : "Assistant B";
     const targetModelId = isModelA ? session.modelIdA : session.modelIdB;
-    const cleanNames: { [key: string]: string } = {
-      "qwen-free": "qwen-2.5-instruct-0.5b",
-      "llama-free": "llama-3.2-3b-instruct",
-      "gemini-frontier": "gemini-3.5-flash",
-      "claude-frontier": "claude-3.5-sonnet",
-    };
-    return cleanNames[targetModelId] || targetModelId;
+    const model = MODEL_CATALOG.find(m => m.id === targetModelId);
+    return model ? model.name : targetModelId;
   };
 
   const getModelSubtext = (isModelA: boolean) => {
     if (!session) return "";
     if (blindMode && !session.isRevealed) return "Anonymous Model Persona";
     const targetModelId = isModelA ? session.modelIdA : session.modelIdB;
-    const desc: { [key: string]: string } = {
-      "qwen-free": "Alibaba OSS • Lightweight Sim",
-      "llama-free": "Meta OSS • 3B Parameter Model",
-      "gemini-frontier": "Google Frontier State",
-      "claude-frontier": "Anthropic Frontier Pro",
-    };
-    return desc[targetModelId] || "External Endpoint Override";
+    const model = MODEL_CATALOG.find(m => m.id === targetModelId);
+    if (model) {
+      const typeStr = model.type === "FRONTIER" ? "Frontier Class" : "Open Weight";
+      return `${model.description || typeStr}`;
+    }
+    return "External Endpoint Override";
   };
 
   const renderBrandLogo = (isModelA: boolean) => {
@@ -264,9 +258,13 @@ export default function ArenaChat() {
       gemini: { bg: "bg-blue-600", char: "G" },
       claude: { bg: "bg-amber-600", char: "C" },
       llama: { bg: "bg-teal-600", char: "L" },
+      deepseek: { bg: "bg-sky-500", char: "D" },
+      qwen: { bg: "bg-purple-600", char: "Q" },
+      gpt: { bg: "bg-emerald-600", char: "O" },
+      mistral: { bg: "bg-orange-600", char: "M" },
     };
     const brand = Object.entries(brands).find(([key]) =>
-      targetModelId.includes(key),
+      targetModelId.toLowerCase().includes(key),
     )?.[1] || { bg: "bg-purple-600", char: "Q" };
     return (
       <div

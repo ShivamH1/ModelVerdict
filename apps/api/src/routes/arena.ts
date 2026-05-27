@@ -4,6 +4,7 @@ import { generateResponse } from '@veritas/llm-client';
 import { MODEL_CATALOG } from '@veritas/shared';
 import { logInference } from '../services/logging';
 import { checkInputGuardrail, checkOutputGuardrail } from '../guardrails';
+import { computeEloDeltaForSession } from '../services/leaderboard';
 
 const router = Router();
 
@@ -122,8 +123,19 @@ router.post('/:id/vote', async (req, res) => {
     const session = await getSession(req.params.id);
     if (!session) return res.status(404).json({ error: 'Not found' });
     
-    session.votedFor = req.body.vote;
+    const vote = req.body.vote;
+    session.votedFor = vote;
     session.isRevealed = true;
+    
+    try {
+      const delta = await computeEloDeltaForSession(session.id, vote);
+      if (delta) {
+        session.eloDelta = delta;
+      }
+    } catch (eloErr) {
+      console.error('Failed to compute Elo delta:', eloErr);
+    }
+    
     await updateSession(session);
     res.json(session);
   } catch (err: any) {

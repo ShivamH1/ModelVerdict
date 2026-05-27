@@ -1,6 +1,6 @@
 "use client";
 
-import { Bot, BarChart3, Shield } from "lucide-react";
+import { Bot, BarChart3, Shield, Trophy } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,7 @@ export function Nav() {
     { href: "/", label: "Chat Arena", icon: Bot },
     { href: "/benchmark", label: "Benchmark Studio", icon: BarChart3 },
     { href: "/logs", label: "Guardrail Logs", icon: Shield },
+    { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
   ];
 
   return (
