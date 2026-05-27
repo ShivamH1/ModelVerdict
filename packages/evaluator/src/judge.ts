@@ -47,7 +47,11 @@ ${responseB}`;
       }
     );
 
-    const data = JSON.parse(result.content);
+    let cleaned = result.content.trim();
+    if (cleaned.startsWith('```')) {
+      cleaned = cleaned.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+    }
+    const data = JSON.parse(cleaned.trim());
     return {
       scoresA: data.scoresA,
       scoresB: data.scoresB

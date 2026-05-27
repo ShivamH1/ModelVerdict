@@ -32,7 +32,13 @@ router.get('/report/:runId', async (req, res) => {
     if (!run) return res.status(404).json({ error: 'Run not found' });
     
     const results = await prisma.evalResult.findMany({ where: { runId: run.id } });
-    if (results.length === 0) return res.status(404).json({ error: 'Results not found' });
+    
+    if (results.length === 0) {
+      if (run.status === 'running') {
+        return res.json({ error: 'Evaluation run is still in progress', status: 'running' });
+      }
+      return res.status(404).json({ error: 'Results not found' });
+    }
     
     const modelIdA = results[0].modelIdA;
     const modelIdB = results[0].modelIdB;

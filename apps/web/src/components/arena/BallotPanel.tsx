@@ -39,8 +39,8 @@ export function BallotPanel({
         <p className="text-[10px] text-neutral-400 mt-2 font-medium">
           {session.votedFor === "tie" && "🤝 You designated this round as an equal Tie."}
           {session.votedFor === "both_bad" && "☠️ You audited both outputs as critically flawed."}
-          {session.votedFor === "A" && "🏆 Voted Assistant A as the superior model."}
-          {session.votedFor === "B" && "🏆 Voted Assistant B as the superior model."}
+          {session.votedFor === "A" && "🏆 Voted Assistant A as the superior, highly coherent outputs."}
+          {session.votedFor === "B" && "🏆 Voted Assistant B as the superior, highly coherent outputs."}
         </p>
       </div>
     );
@@ -63,19 +63,19 @@ export function BallotPanel({
         </button>
         <button
           onClick={() => submitVote("tie")}
-          className="px-4 py-2 hover:bg-neutral-800 hover:text-white rounded-lg text-xs font-medium text-neutral-300 border border-neutral-800 hover:border-neutral-700 transition-all cursor-pointer"
+          className="px-4 py-2 hover:bg-neutral-800 hover:text-white rounded-lg text-xs font-medium text-neutral-300 border border-neutral-800 hover:border-neutral-700 transition-all flex items-center gap-1 cursor-pointer"
         >
-          Both are good
+          ⇄ Both are good
         </button>
         <button
           onClick={() => submitVote("both_bad")}
-          className="px-4 py-2 hover:bg-neutral-800 hover:text-white rounded-lg text-xs font-medium text-neutral-300 border border-neutral-800 hover:border-neutral-700 transition-all cursor-pointer"
+          className="px-4 py-2 hover:bg-neutral-800 hover:text-white rounded-lg text-xs font-medium text-neutral-300 border border-neutral-800 hover:border-neutral-700 transition-all flex items-center gap-1 cursor-pointer"
         >
-          Both are bad
+          ∅ Both are bad
         </button>
         <button
           onClick={() => submitVote("B")}
-          className="px-4 py-2 hover:bg-neutral-800 hover:text-white rounded-lg text-xs font-medium text-neutral-300 border border-neutral-800 hover:border-neutral-700 transition-all cursor-pointer"
+          className="px-4 py-2 hover:bg-neutral-800 hover:text-white rounded-lg text-xs font-medium text-neutral-300 border border-neutral-800 hover:border-neutral-700 transition-all flex items-center gap-1 cursor-pointer"
         >
           B is better →
         </button>

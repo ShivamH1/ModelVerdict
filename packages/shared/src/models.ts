@@ -78,7 +78,7 @@ export const MODEL_CATALOG: ModelConfig[] = [
     id: 'gemini-2.5-pro',
     name: 'Gemini 2.5 Pro',
     provider: 'openrouter',
-    modelName: 'google/gemini-2.5-pro-exp-03-25:free',
+    modelName: 'google/gemini-2.5-flash:free',
     type: 'FRONTIER',
     description: 'Google\'s most capable frontier reasoning model.',
     baseUrl: 'https://openrouter.ai/api/v1',

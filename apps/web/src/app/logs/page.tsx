@@ -1,1 +1,4 @@
-import GuardrailsLogs from "@/components/GuardrailsLogs"; export default function LogsPage() { return <GuardrailsLogs />; }
+import GuardrailsLogs from "@/components/GuardrailsLogs";
+export default function LogsPage() {
+  return <GuardrailsLogs />;
+}
