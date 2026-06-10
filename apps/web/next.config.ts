@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const apiUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001").replace(/\/$/, "");
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@veritas/shared"],
