@@ -3,16 +3,22 @@ export enum ModelType {
   FRONTIER = "FRONTIER",
 }
 
+export interface ProviderAttempt {
+  provider: "openrouter" | "huggingface" | "groq" | "mistral" | "gemini";
+  modelName: string;
+  apiKeyEnv: string;
+}
+
 export interface ModelConfig {
   id: string;
   name: string;
-  provider: "openrouter" | "huggingface";
+  provider: "openrouter" | "huggingface" | "groq" | "mistral" | "gemini";
   modelName: string;
   type: "FREE" | "FRONTIER";
   description: string;
   baseUrl: string;
   apiKeyEnv: string;
-  fallbackModelId?: string;
+  providerChain: ProviderAttempt[];
   freeTier: boolean;
 }
 
@@ -24,6 +30,7 @@ export interface ChatMessage {
   latencyMs?: number;
   tokensUsed?: number;
   costUsd?: number;
+  isError?: boolean;
   guardrailTriggered?: {
     type: "input" | "output";
     reason: string;

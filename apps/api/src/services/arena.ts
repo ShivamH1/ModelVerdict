@@ -2,9 +2,28 @@ import { v4 as uuidv4 } from 'uuid';
 import { prisma } from '../db';
 import { Session, MODEL_CATALOG, ModelConfig } from '@veritas/shared';
 
+let lastPairIds: [string, string] = ['', ''];
+
 export function getRandomPair(): [ModelConfig, ModelConfig] {
-  const models = [...MODEL_CATALOG].sort(() => Math.random() - 0.5);
-  return [models[0], models[1]];
+  const models = MODEL_CATALOG;
+  let modelA: ModelConfig = models[0];
+  let modelB: ModelConfig = models[1];
+
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const shuffled = [...models].sort(() => Math.random() - 0.5);
+    modelA = shuffled[0];
+    modelB = shuffled[1];
+
+    const sameModel = modelA.id === modelB.id;
+    const sameAsLast =
+      (lastPairIds[0] === modelA.id && lastPairIds[1] === modelB.id) ||
+      (lastPairIds[0] === modelB.id && lastPairIds[1] === modelA.id);
+
+    if (!sameModel && !sameAsLast) break;
+  }
+
+  lastPairIds = [modelA.id, modelB.id];
+  return [modelA, modelB];
 }
 
 export async function createSession(): Promise<Session> {

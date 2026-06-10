@@ -10,6 +10,7 @@ import {
   Clock,
   HardDrive,
   Coins,
+  AlertTriangle,
 } from "lucide-react";
 
 interface BattlePanelProps {
@@ -105,6 +106,14 @@ export function BattlePanel({
             <div className="flex items-center gap-2 text-neutral-400 font-medium font-sans text-xs pt-1">
               <span className="w-2 h-2 rounded-full bg-neutral-200 animate-ping" />
               <span>Generating...</span>
+            </div>
+          ) : msg && (msg as any).isError ? (
+            <div className="flex flex-col items-start gap-2 border border-amber-800/40 bg-amber-950/20 rounded-xl p-4 select-none">
+              <div className="flex items-center gap-2 text-amber-400">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
+                <span className="text-xs font-semibold uppercase tracking-wide">Model Unavailable</span>
+              </div>
+              <p className="text-xs text-amber-300/80 leading-relaxed">{msg.content}</p>
             </div>
           ) : msg ? (
             <div className="space-y-3 leading-relaxed">

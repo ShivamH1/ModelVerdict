@@ -8,11 +8,13 @@ const keepAliveAgent = new https.Agent({
   keepAliveMsecs: 60000,
 });
 
-export function buildClient(provider: 'openrouter' | 'huggingface' | 'gemini', apiKey: string, customBaseUrl?: string) {
+export function buildClient(provider: 'openrouter' | 'huggingface' | 'gemini' | 'groq' | 'mistral', apiKey: string, customBaseUrl?: string) {
   const baseUrls = {
     openrouter: 'https://openrouter.ai/api/v1',
     huggingface: 'https://api-inference.huggingface.co/v1',
     gemini: 'https://generativelanguage.googleapis.com/v1beta/openai/',
+    groq: 'https://api.groq.com/openai/v1',
+    mistral: 'https://api.mistral.ai/v1',
   };
 
   const baseURL = customBaseUrl || baseUrls[provider];

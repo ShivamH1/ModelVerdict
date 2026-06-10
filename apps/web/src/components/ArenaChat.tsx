@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { Send, RefreshCw } from "lucide-react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Send, RefreshCw, AlertTriangle, RotateCcw } from "lucide-react";
 import { Session, MODEL_CATALOG } from "@veritas/shared";
 import { Alert } from "./Alert";
 import { ArenaWelcome } from "./arena/ArenaWelcome";
@@ -16,6 +16,9 @@ export default function ArenaChat() {
   const [blindMode, setBlindMode] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [initError, setInitError] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState("");
+  const [lastPrompt, setLastPrompt] = useState("");
 
   // Live streaming states
   const [isStreaming, setIsStreaming] = useState(false);
@@ -23,50 +26,62 @@ export default function ArenaChat() {
   const [streamedTextB, setStreamedTextB] = useState("");
 
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const loadingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const initSession = async () => {
-    setLoading(true);
-    setIsStreaming(false);
-    setStreamedTextA("");
-    setStreamedTextB("");
-    try {
-      const res = await fetch("/api/sessions/init", { method: "POST" });
-      const data = await res.json();
-      if (data.error) {
-        throw new Error(data.error);
-      }
-      setSession(data);
-    } catch (err) {
-      console.error("Failed to start battle session:", err);
-      setSession({
-        id: "dev-session",
-        messagesA: [],
-        messagesB: [],
-        modelIdA: "gemini-frontier",
-        modelIdB: "claude-frontier",
-        isRevealed: false,
-        createdAt: new Date().toISOString(),
-      });
-    } finally {
-      setLoading(false);
+  const clearLoadingTimer = () => {
+    if (loadingTimerRef.current) {
+      clearTimeout(loadingTimerRef.current);
+      loadingTimerRef.current = null;
     }
   };
 
+  const initSession = useCallback(async () => {
+    setLoading(true);
+    setInitError(false);
+    setIsStreaming(false);
+    setStreamedTextA("");
+    setStreamedTextB("");
+    setError(null);
+    try {
+      const res = await fetch("/api/sessions/init", { method: "POST" });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setSession(data);
+    } catch (err) {
+      console.error("Failed to start battle session:", err);
+      setInitError(true);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     Promise.resolve().then(() => initSession());
-  }, []);
+  }, [initSession]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [session?.messagesA, session?.messagesB, streamedTextA, streamedTextB]);
 
-  const handleSend = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!prompt.trim() || loading || isStreaming || !session) return;
+  useEffect(() => {
+    return () => clearLoadingTimer();
+  }, []);
 
-    const userPrompt = prompt;
+  const handleSend = async (e?: React.FormEvent, retryPrompt?: string) => {
+    if (e) e.preventDefault();
+    const userPrompt = retryPrompt || prompt;
+    if (!userPrompt.trim() || loading || isStreaming || !session) return;
+
     setPrompt("");
+    setLastPrompt(userPrompt);
     setLoading(true);
+    setLoadingStatus("Querying models...");
+
+    // Show fallback status hint after 3s
+    clearLoadingTimer();
+    loadingTimerRef.current = setTimeout(() => {
+      setLoadingStatus("Trying fallback provider...");
+    }, 3000);
 
     const updatedMsgsA = [
       ...(session.messagesA || []),
@@ -78,20 +93,26 @@ export default function ArenaChat() {
     ];
 
     const previousSession = session;
-    setSession({
-      ...session,
-      messagesA: updatedMsgsA,
-      messagesB: updatedMsgsB,
-    });
+    setSession({ ...session, messagesA: updatedMsgsA, messagesB: updatedMsgsB });
 
     try {
       const res = await fetch(`/api/sessions/${session.id}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: userPrompt,
-        }),
+        body: JSON.stringify({ prompt: userPrompt }),
       });
+
+      clearLoadingTimer();
+      setLoadingStatus("");
+
+      if (res.status === 503) {
+        const data = await res.json();
+        setError(data.error || "Both models are unavailable. Please retry.");
+        setSession(previousSession);
+        setLoading(false);
+        return;
+      }
+
       const data = await res.json();
 
       if (data.error) {
@@ -101,33 +122,26 @@ export default function ArenaChat() {
       } else {
         const lastIndexA = data.messagesA.length - 1;
         const lastIndexB = data.messagesB.length - 1;
-        const fullTxtA =
-          data.messagesA[lastIndexA]?.role === "assistant"
-            ? data.messagesA[lastIndexA].content
-            : "";
-        const fullTxtB =
-          data.messagesB[lastIndexB]?.role === "assistant"
-            ? data.messagesB[lastIndexB].content
-            : "";
+
+        const lastMsgA = data.messagesA[lastIndexA];
+        const lastMsgB = data.messagesB[lastIndexB];
+
+        // Don't animate error messages
+        const fullTxtA = lastMsgA?.role === "assistant" && !lastMsgA?.isError ? lastMsgA.content : null;
+        const fullTxtB = lastMsgB?.role === "assistant" && !lastMsgB?.isError ? lastMsgB.content : null;
+
+        if (!fullTxtA && !fullTxtB) {
+          setSession(data);
+          setLoading(false);
+          return;
+        }
 
         const initialSession = { ...data };
-        if (
-          lastIndexA >= 0 &&
-          initialSession.messagesA[lastIndexA].role === "assistant"
-        ) {
-          initialSession.messagesA[lastIndexA] = {
-            ...initialSession.messagesA[lastIndexA],
-            content: "",
-          };
+        if (fullTxtA && initialSession.messagesA[lastIndexA]) {
+          initialSession.messagesA[lastIndexA] = { ...initialSession.messagesA[lastIndexA], content: "" };
         }
-        if (
-          lastIndexB >= 0 &&
-          initialSession.messagesB[lastIndexB].role === "assistant"
-        ) {
-          initialSession.messagesB[lastIndexB] = {
-            ...initialSession.messagesB[lastIndexB],
-            content: "",
-          };
+        if (fullTxtB && initialSession.messagesB[lastIndexB]) {
+          initialSession.messagesB[lastIndexB] = { ...initialSession.messagesB[lastIndexB], content: "" };
         }
 
         setSession(initialSession);
@@ -138,8 +152,8 @@ export default function ArenaChat() {
         let charIdxB = 0;
 
         const interval = setInterval(() => {
-          const doneA = charIdxA >= fullTxtA.length;
-          const doneB = charIdxB >= fullTxtB.length;
+          const doneA = !fullTxtA || charIdxA >= fullTxtA.length;
+          const doneB = !fullTxtB || charIdxB >= fullTxtB.length;
 
           if (doneA && doneB) {
             clearInterval(interval);
@@ -148,7 +162,7 @@ export default function ArenaChat() {
             return;
           }
 
-          if (!doneA) {
+          if (fullTxtA && !doneA) {
             charIdxA = Math.min(charIdxA + 4, fullTxtA.length);
             const sliceA = fullTxtA.slice(0, charIdxA);
             setStreamedTextA(sliceA);
@@ -156,15 +170,12 @@ export default function ArenaChat() {
               if (!prev) return prev;
               const copy = { ...prev };
               if (copy.messagesA[lastIndexA])
-                copy.messagesA[lastIndexA] = {
-                  ...copy.messagesA[lastIndexA],
-                  content: sliceA,
-                };
+                copy.messagesA[lastIndexA] = { ...copy.messagesA[lastIndexA], content: sliceA };
               return copy;
             });
           }
 
-          if (!doneB) {
+          if (fullTxtB && !doneB) {
             charIdxB = Math.min(charIdxB + 4, fullTxtB.length);
             const sliceB = fullTxtB.slice(0, charIdxB);
             setStreamedTextB(sliceB);
@@ -172,19 +183,17 @@ export default function ArenaChat() {
               if (!prev) return prev;
               const copy = { ...prev };
               if (copy.messagesB[lastIndexB])
-                copy.messagesB[lastIndexB] = {
-                  ...copy.messagesB[lastIndexB],
-                  content: sliceB,
-                };
+                copy.messagesB[lastIndexB] = { ...copy.messagesB[lastIndexB], content: sliceB };
               return copy;
             });
           }
         }, 12);
       }
     } catch (err) {
+      clearLoadingTimer();
+      setLoadingStatus("");
       console.error("Chat failure:", err);
-      const msg =
-        err instanceof Error ? err.message : "Failed to send chat prompt.";
+      const msg = err instanceof Error ? err.message : "Failed to send chat prompt.";
       setError(msg);
       setSession(previousSession);
       setLoading(false);
@@ -215,9 +224,7 @@ export default function ArenaChat() {
   const revealSession = async () => {
     if (!session || session.isRevealed) return;
     try {
-      const res = await fetch(`/api/sessions/${session.id}/reveal`, {
-        method: "POST",
-      });
+      const res = await fetch(`/api/sessions/${session.id}/reveal`, { method: "POST" });
       const data = await res.json();
       setSession(data);
     } catch (err) {
@@ -227,8 +234,7 @@ export default function ArenaChat() {
 
   const getDisplayHeader = (isModelA: boolean) => {
     if (!session) return "";
-    if (blindMode && !session.isRevealed)
-      return isModelA ? "Assistant A" : "Assistant B";
+    if (blindMode && !session.isRevealed) return isModelA ? "Assistant A" : "Assistant B";
     const targetModelId = isModelA ? session.modelIdA : session.modelIdB;
     const model = MODEL_CATALOG.find((m) => m.id === targetModelId);
     return model ? model.name : targetModelId;
@@ -240,9 +246,8 @@ export default function ArenaChat() {
     const targetModelId = isModelA ? session.modelIdA : session.modelIdB;
     const model = MODEL_CATALOG.find((m) => m.id === targetModelId);
     if (model) {
-      const typeStr =
-        model.type === "FRONTIER" ? "Frontier Class" : "Open Weight";
-      return `${model.description || typeStr}`;
+      const typeStr = model.type === "FRONTIER" ? "Frontier Class" : "Open Weight";
+      return model.description || typeStr;
     }
     return "External Endpoint Override";
   };
@@ -256,25 +261,18 @@ export default function ArenaChat() {
       );
     }
     const targetModelId = isModelA ? session.modelIdA : session.modelIdB;
-    const brands = {
+    const brands: Record<string, { bg: string; char: string }> = {
       gemini: { bg: "bg-blue-600", char: "G" },
-      claude: { bg: "bg-amber-600", char: "C" },
       llama: { bg: "bg-teal-600", char: "L" },
       deepseek: { bg: "bg-sky-500", char: "D" },
       qwen: { bg: "bg-purple-600", char: "Q" },
-      gpt: { bg: "bg-emerald-600", char: "O" },
       mistral: { bg: "bg-orange-600", char: "M" },
     };
-    const brand = Object.entries(brands).find(([key]) =>
-      targetModelId.toLowerCase().includes(key),
-    )?.[1] || { bg: "bg-purple-600", char: "Q" };
+    const brand =
+      Object.entries(brands).find(([key]) => targetModelId.toLowerCase().includes(key))?.[1] ||
+      { bg: "bg-indigo-600", char: "A" };
     return (
-      <div
-        className={cn(
-          "w-5 h-5 rounded-md flex items-center justify-center text-[11px] text-white font-black shadow-sm font-sans select-none",
-          brand.bg,
-        )}
-      >
+      <div className={cn("w-5 h-5 rounded-md flex items-center justify-center text-[11px] text-white font-black shadow-sm font-sans select-none", brand.bg)}>
         {brand.char}
       </div>
     );
@@ -284,6 +282,22 @@ export default function ArenaChat() {
     session &&
     ((session.messagesA && session.messagesA.length > 0) ||
       (session.messagesB && session.messagesB.length > 0));
+
+  if (initError) {
+    return (
+      <div className="flex flex-col flex-1 h-full bg-neutral-950 text-[#e0e0e0] items-center justify-center gap-4">
+        <AlertTriangle className="w-8 h-8 text-amber-500" />
+        <p className="text-sm text-neutral-400">Failed to connect to the arena. Is the API running?</p>
+        <button
+          onClick={initSession}
+          className="flex items-center gap-2 text-xs px-4 py-2 rounded-lg bg-neutral-800 border border-neutral-700 hover:border-neutral-600 text-neutral-200 transition-all"
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col flex-1 h-full bg-neutral-950 text-[#e0e0e0] font-sans antialiased relative">
@@ -310,12 +324,7 @@ export default function ArenaChat() {
             disabled={loading}
             className="text-xs text-neutral-300 hover:text-white px-2.5 py-1 rounded transition-all flex items-center gap-1.5 bg-neutral-900 border border-neutral-800 hover:border-neutral-700 disabled:opacity-50"
           >
-            <RefreshCw
-              className={cn(
-                "w-3.5 h-3.5",
-                loading && !hasMessages && "animate-spin",
-              )}
-            />
+            <RefreshCw className={cn("w-3.5 h-3.5", loading && !hasMessages && "animate-spin")} />
             <span>Reset Arena</span>
           </button>
         </div>
@@ -359,6 +368,24 @@ export default function ArenaChat() {
 
         {hasMessages && (
           <div className="pt-3 border-t border-neutral-900 w-full max-w-3xl mx-auto select-none">
+            {/* Retry prompt button when last message had errors */}
+            {lastPrompt && !loading && !isStreaming && session && (() => {
+              const lastA = session.messagesA[session.messagesA.length - 1];
+              const lastB = session.messagesB[session.messagesB.length - 1];
+              const anyError = (lastA as any)?.isError || (lastB as any)?.isError;
+              if (!anyError) return null;
+              return (
+                <div className="mb-2 flex justify-center">
+                  <button
+                    onClick={() => handleSend(undefined, lastPrompt)}
+                    className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-amber-950/40 border border-amber-800/50 text-amber-400 hover:border-amber-700 transition-all"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    Retry failed model
+                  </button>
+                </div>
+              );
+            })()}
             <form
               onSubmit={handleSend}
               className="flex items-center gap-2 bg-neutral-900/80 rounded-2xl border border-neutral-800 p-2 focus-within:border-neutral-700 transition-all"
@@ -370,7 +397,7 @@ export default function ArenaChat() {
                   isStreaming
                     ? "Streaming live outputs..."
                     : loading
-                      ? "Resolving parallel generations..."
+                      ? loadingStatus || "Resolving parallel generations..."
                       : "Prompt both models simultaneously..."
                 }
                 value={prompt}

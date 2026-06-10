@@ -1,12 +1,12 @@
-import express from 'express';
-import cors from 'cors';
-import compression from 'compression';
-import http from 'http';
-import modelsRouter from './routes/models';
-import arenaRouter from './routes/arena';
-import evalRouter from './routes/eval';
-import logsRouter from './routes/logs';
-import { initWebSocketServer } from './services/websocket';
+import express from "express";
+import cors from "cors";
+import compression from "compression";
+import http from "http";
+import modelsRouter from "./routes/models";
+import arenaRouter from "./routes/arena";
+import evalRouter from "./routes/eval";
+import logsRouter from "./routes/logs";
+import { initWebSocketServer } from "./services/websocket";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -15,37 +15,39 @@ const PORT = process.env.PORT || 3001;
 app.use(compression());
 
 app.use(cors());
-app.use(express.json({ limit: '1mb' }));
+app.use(express.json({ limit: "1mb" }));
 
 // Request logging middleware with response time tracking
 app.use((req, res, next) => {
   const start = Date.now();
-  res.on('finish', () => {
+  res.on("finish", () => {
     const duration = Date.now() - start;
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} ${res.statusCode} ${duration}ms`);
+    console.log(
+      `[${new Date().toISOString()}] ${req.method} ${req.url} ${res.statusCode} ${duration}ms`,
+    );
   });
   next();
 });
 
-// Request timeout middleware (30s)
+// Request timeout middleware (90s — AI multi-provider fallback chains need headroom)
 app.use((req, res, next) => {
-  req.setTimeout(30000, () => {
+  req.setTimeout(90000, () => {
     if (!res.headersSent) {
-      res.status(408).json({ error: 'Request timeout' });
+      res.status(408).json({ error: "Request timeout" });
     }
   });
   next();
 });
 
 // Routes
-app.use('/api/models', modelsRouter);
-app.use('/api/sessions', arenaRouter);
-app.use('/api/evaluation', evalRouter);
-app.use('/api/logs', logsRouter);
+app.use("/api/models", modelsRouter);
+app.use("/api/sessions", arenaRouter);
+app.use("/api/evaluation", evalRouter);
+app.use("/api/logs", logsRouter);
 
 // Health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', uptime: process.uptime() });
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", uptime: process.uptime() });
 });
 
 const server = http.createServer(app);

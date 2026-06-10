@@ -22,7 +22,7 @@ export default function BenchmarkSuite() {
     MODEL_CATALOG.filter((m) => m.type === "FREE")[0]?.id || "deepseek-v3",
   );
   const [modelB, setModelB] = useState(
-    MODEL_CATALOG.filter((m) => m.type === "FRONTIER")[0]?.id || "gpt-4o",
+    MODEL_CATALOG.filter((m) => m.type === "FRONTIER")[0]?.id || "gemini-2.5-flash",
   );
   const [testSize, setTestSize] = useState("10");
   const [isRunning, setIsRunning] = useState(false);
@@ -122,10 +122,8 @@ export default function BenchmarkSuite() {
       wsRef.current.close();
     }
 
-    const wsUrl =
-      process.env.NODE_ENV === "production"
-        ? `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}/ws`
-        : "ws://localhost:3001/ws";
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+    const wsUrl = apiBase.replace(/^http/, "ws") + "/ws";
 
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;

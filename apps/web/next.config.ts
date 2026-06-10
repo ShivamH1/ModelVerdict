@@ -1,12 +1,14 @@
 import type { NextConfig } from "next";
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
 const nextConfig: NextConfig = {
   transpilePackages: ["@veritas/shared"],
   async rewrites() {
     return [
       {
         source: "/api/:path*",
-        destination: "http://localhost:3001/api/:path*", // Proxy to Backend
+        destination: `${apiUrl}/api/:path*`,
       },
     ];
   },

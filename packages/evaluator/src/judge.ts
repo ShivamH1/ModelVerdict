@@ -1,8 +1,7 @@
 import { generateResponse } from '@veritas/llm-client';
 import { MODEL_CATALOG, Scores } from '@veritas/shared';
 
-// Use gpt-4o-mini as the impartial, fast, structured judge
-const JUDGE_MODEL = MODEL_CATALOG.find(m => m.id === 'gpt-4o-mini') || MODEL_CATALOG[4];
+const JUDGE_MODEL = MODEL_CATALOG.find(m => m.id === 'gemini-2.5-flash')!;
 
 export async function runJudge(
   prompt: string,
