@@ -16,7 +16,7 @@ RUN mkdir -p apps/web && \
 # Install only API + package dependencies
 RUN bun install
 
-# Generate Prisma client (binaryTargets set in schema.prisma for linux)
+# Generate Prisma client for Linux
 RUN cd apps/api && bunx prisma generate
 
 EXPOSE 3001

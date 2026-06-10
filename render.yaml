@@ -2,7 +2,7 @@ services:
   - type: web
     name: arena-ai-api
     env: docker
-    dockerfilePath: ./apps/api/Dockerfile
+    dockerfilePath: ./Dockerfile
     dockerContext: .
     plan: free
     envVars:
