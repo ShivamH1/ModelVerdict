@@ -1,8 +1,8 @@
-import { v4 as uuidv4 } from 'uuid';
-import { prisma } from '../db';
-import { Session, MODEL_CATALOG, ModelConfig } from '@veritas/shared';
+import { v4 as uuidv4 } from "uuid";
+import { prisma } from "../db";
+import { Session, MODEL_CATALOG, ModelConfig } from "@veritas/shared";
 
-let lastPairIds: [string, string] = ['', ''];
+let lastPairIds: [string, string] = ["", ""];
 
 export function getRandomPair(): [ModelConfig, ModelConfig] {
   const models = MODEL_CATALOG;
@@ -28,7 +28,7 @@ export function getRandomPair(): [ModelConfig, ModelConfig] {
 
 export async function createSession(): Promise<Session> {
   const [modelA, modelB] = getRandomPair();
-  
+
   const newSession = await prisma.session.create({
     data: {
       id: `sess-${uuidv4()}`,
@@ -36,25 +36,25 @@ export async function createSession(): Promise<Session> {
       modelIdB: modelB.id,
       messagesA: [],
       messagesB: [],
-      isRevealed: false
-    }
+      isRevealed: false,
+    },
   });
 
   return {
     ...newSession,
     messagesA: (newSession.messagesA as any) || [],
-    messagesB: (newSession.messagesB as any) || []
+    messagesB: (newSession.messagesB as any) || [],
   } as unknown as Session;
 }
 
 export async function getSession(id: string): Promise<Session | null> {
   const session = await prisma.session.findUnique({ where: { id } });
   if (!session) return null;
-  
+
   return {
     ...session,
     messagesA: (session.messagesA as any) || [],
-    messagesB: (session.messagesB as any) || []
+    messagesB: (session.messagesB as any) || [],
   } as unknown as Session;
 }
 
@@ -66,7 +66,7 @@ export async function updateSession(session: Session): Promise<void> {
       messagesB: session.messagesB as any,
       isRevealed: session.isRevealed,
       votedFor: session.votedFor,
-      eloDelta: session.eloDelta as any
-    }
+      eloDelta: session.eloDelta as any,
+    },
   });
 }

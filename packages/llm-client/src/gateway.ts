@@ -1,5 +1,5 @@
-import { ModelConfig, ChatMessage, ProviderAttempt } from '@veritas/shared';
-import { buildClient } from './client';
+import { ModelConfig, ChatMessage } from "@veritas/shared";
+import { buildClient } from "./client";
 
 export interface GenerationResult {
   content: string;
@@ -16,7 +16,7 @@ export interface GatewayOptions {
   systemPrompt?: string;
   temperature?: number;
   maxTokens?: number;
-  responseFormat?: 'json_object' | 'text';
+  responseFormat?: "json_object" | "text";
   onProviderAttempt?: (provider: string, attempt: number) => void;
 }
 
@@ -38,19 +38,19 @@ function isRateLimitError(err: any): boolean {
 function isTransientError(err: any): boolean {
   const status = err.status || err.response?.status;
   return (
-    (typeof status === 'number' && status >= 500) ||
-    err.code === 'ECONNRESET' ||
-    err.code === 'ETIMEDOUT' ||
-    err.message === 'Request Timeout'
+    (typeof status === "number" && status >= 500) ||
+    err.code === "ECONNRESET" ||
+    err.code === "ETIMEDOUT" ||
+    err.message === "Request Timeout"
   );
 }
 
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function callWithTimeout(client: any, params: any): Promise<any> {
   const completionPromise = client.chat.completions.create(params);
   const timeoutPromise = new Promise<never>((_, reject) =>
-    setTimeout(() => reject(new Error('Request Timeout')), PROVIDER_TIMEOUT_MS)
+    setTimeout(() => reject(new Error("Request Timeout")), PROVIDER_TIMEOUT_MS),
   );
   return Promise.race([completionPromise, timeoutPromise]);
 }
@@ -71,7 +71,10 @@ export class LLMGateway {
   }
 
   private recordFailure(provider: string): void {
-    const state = this.circuits.get(provider) ?? { failures: 0, lastFailedAt: 0 };
+    const state = this.circuits.get(provider) ?? {
+      failures: 0,
+      lastFailedAt: 0,
+    };
     state.failures += 1;
     state.lastFailedAt = Date.now();
     this.circuits.set(provider, state);
@@ -85,17 +88,19 @@ export class LLMGateway {
     config: ModelConfig,
     userPrompt: string,
     history: ChatMessage[],
-    options: GatewayOptions = {}
+    options: GatewayOptions = {},
   ): Promise<GenerationResult> {
     const start = Date.now();
     const chain = config.providerChain;
 
     const messages: any[] = [];
     if (options.systemPrompt) {
-      messages.push({ role: 'system', content: options.systemPrompt });
+      messages.push({ role: "system", content: options.systemPrompt });
     }
-    history.forEach(msg => messages.push({ role: msg.role, content: msg.content }));
-    messages.push({ role: 'user', content: userPrompt });
+    history.forEach((msg) =>
+      messages.push({ role: msg.role, content: msg.content }),
+    );
+    messages.push({ role: "user", content: userPrompt });
 
     const errors: string[] = [];
 
@@ -104,7 +109,9 @@ export class LLMGateway {
       const isLast = i === chain.length - 1;
 
       if (this.isCircuitOpen(attempt.provider)) {
-        console.log(`[Gateway] Circuit open for ${attempt.provider}, skipping.`);
+        console.log(
+          `[Gateway] Circuit open for ${attempt.provider}, skipping.`,
+        );
         errors.push(`${attempt.provider}: circuit open`);
         if (isLast) break;
         continue;
@@ -112,7 +119,9 @@ export class LLMGateway {
 
       const apiKey = process.env[attempt.apiKeyEnv];
       if (!apiKey) {
-        console.log(`[Gateway] No API key for ${attempt.provider} (${attempt.apiKeyEnv}), skipping.`);
+        console.log(
+          `[Gateway] No API key for ${attempt.provider} (${attempt.apiKeyEnv}), skipping.`,
+        );
         errors.push(`${attempt.provider}: missing API key`);
         if (isLast) break;
         continue;
@@ -127,7 +136,9 @@ export class LLMGateway {
 
       while (providerAttempt < maxProviderAttempts) {
         try {
-          console.log(`[Gateway] Trying ${attempt.provider}/${attempt.modelName} (chain ${i + 1}/${chain.length}, retry ${providerAttempt})`);
+          console.log(
+            `[Gateway] Trying ${attempt.provider}/${attempt.modelName} (chain ${i + 1}/${chain.length}, retry ${providerAttempt})`,
+          );
           const client = buildClient(attempt.provider as any, apiKey);
 
           const completion = await callWithTimeout(client, {
@@ -135,14 +146,18 @@ export class LLMGateway {
             messages,
             temperature: options.temperature ?? 0.7,
             max_tokens: options.maxTokens ?? 2048,
-            response_format: options.responseFormat ? { type: options.responseFormat } : undefined,
+            response_format: options.responseFormat
+              ? { type: options.responseFormat }
+              : undefined,
           });
 
           this.resetCircuit(attempt.provider);
-          console.log(`[Gateway] Success: ${attempt.provider}/${attempt.modelName}`);
+          console.log(
+            `[Gateway] Success: ${attempt.provider}/${attempt.modelName}`,
+          );
 
           return {
-            content: completion.choices[0]?.message?.content || '',
+            content: completion.choices[0]?.message?.content || "",
             usage: {
               promptTokens: completion.usage?.prompt_tokens || 0,
               completionTokens: completion.usage?.completion_tokens || 0,
@@ -152,7 +167,9 @@ export class LLMGateway {
             modelName: attempt.modelName,
           };
         } catch (err: any) {
-          console.error(`[Gateway] ${attempt.provider} attempt ${providerAttempt + 1} failed: ${err.message}`);
+          console.error(
+            `[Gateway] ${attempt.provider} attempt ${providerAttempt + 1} failed: ${err.message}`,
+          );
 
           if (isRateLimitError(err)) {
             // Rate limited — skip to next provider immediately, no retry
@@ -179,9 +196,7 @@ export class LLMGateway {
       }
     }
 
-    throw new Error(
-      `All providers exhausted. Attempts: ${errors.join(' | ')}`
-    );
+    throw new Error(`All providers exhausted. Attempts: ${errors.join(" | ")}`);
   }
 }
 

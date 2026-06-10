@@ -235,3 +235,62 @@ Turborepo leverages local and remote caching. By defining task pipelines in `tur
 Currently, WebSocket events are broadcasted globally (`wss.clients.forEach`). If User A and User B launch runs simultaneously, their screens will overwrite each other with mixed progress metrics.
 **Multitenancy Implementation:** 
 Implement room/channel subscriptions. When a browser connects to the WebSocket, it should send a subscription payload containing the specific `runId` (e.g. `{ action: 'subscribe', runId: 'run-xxx' }`). The server maps client sockets to their subscribed `runIds`. When broadcasting, the server filters client connections and only sends progress packets to sockets subscribed to that specific `runId`.
+
+---
+
+## 🔍 5. Codebase Exploration Guide
+
+To get comfortable reading or contributing to this monorepo, follow this recommended walkthrough order:
+
+1.  **Shared Schemas & Catalog Configuration**: Start at [types.ts](file:///d:/Product-SAAS/Arena-AI/packages/shared/src/types.ts) and [models.ts](file:///d:/Product-SAAS/Arena-AI/packages/shared/src/models.ts) to understand data shapes and fallback chains.
+2.  **LLM client Gateway**: Inspect [client.ts](file:///d:/Product-SAAS/Arena-AI/packages/llm-client/src/client.ts) (caching connections) and [gateway.ts](file:///d:/Product-SAAS/Arena-AI/packages/llm-client/src/gateway.ts) (resiliency patterns).
+3.  **Database Layer**: Look at [schema.prisma](file:///d:/Product-SAAS/Arena-AI/apps/api/prisma/schema.prisma) to see how models map to tables.
+4.  **Route Handlers**: Read [index.ts](file:///d:/Product-SAAS/Arena-AI/apps/api/src/index.ts) (middlewares) and then [arena.ts](file:///d:/Product-SAAS/Arena-AI/apps/api/src/routes/arena.ts) (execution routes).
+5.  **Standings Calculations**: Read [leaderboard.ts](file:///d:/Product-SAAS/Arena-AI/apps/api/src/services/leaderboard.ts) to see sequential Elo updates.
+
+---
+
+## 💡 6. Deep-Dive Codebase Q&A
+
+### Q11: What is the purpose and usage of the `InferenceLog` interface?
+**Answer:**
+The `InferenceLog` interface defines the telemetry schema for LLM API calls. It tracks response contents, input/output token usage, latencies, estimated costs, and safety guardrail flags. The Express server creates this record asynchronously on every completion in the background, and the Next.js frontend fetches the list of records to render the observability/guardrails log page.
+
+---
+
+### Q12: Why are `defaultHeaders` only checked and configured for OpenRouter, and what about other providers?
+**Answer:**
+OpenRouter requires `HTTP-Referer` and `X-Title` headers in order to attribute request telemetry to ModelVerdict on their public app leaderboards. Other providers (such as Groq, Gemini, Mistral, and Hugging Face) do not require metadata headers; their clients rely entirely on the API keys passed in standard Authorization headers, which the OpenAI SDK handles automatically.
+
+---
+
+### Q13: What does the `isCircuitOpen` function check in the gateway client?
+**Answer:**
+It checks if the target provider is currently offline or unhealthy. If the consecutive failure count has reached the threshold ($3$), it checks the elapsed time since the last failure. If under $60$ seconds have passed, it returns `true` (circuit is open), causing the gateway to bypass this provider immediately. If more than $60$ seconds have passed, it clears the failures and returns `false`, allowing requests to attempt that provider again.
+
+---
+
+### Q14: What is the purpose of `callWithTimeout` inside the gateway client?
+**Answer:**
+`callWithTimeout` enforces a strict 20-second deadline on individual LLM requests using `Promise.race()`. By racing the API request promise against a 20-second timeout rejection promise, it guarantees that hanging external APIs fail fast rather than keeping connections open indefinitely, allowing the gateway to quickly fall back to the next provider in the chain.
+
+---
+
+### Q15: What is the role of the custom logging and global timeout middlewares in `index.ts`?
+**Answer:**
+*   **Logging Middleware**: Records the timestamp, HTTP method, status code, and duration of finished requests for API auditing.
+*   **Timeout Middleware**: Sets a global 90-second connection socket limit. Since comparative arena runs execute concurrent calls with fallback chains, requests require significant headroom; the 90-second window gives the server enough time to try multiple providers before returning a `408 Request Timeout` response.
+
+---
+
+### Q16: How is the `generateResponse` function utilized, and how does it interface with the gateway?
+**Answer:**
+`generateResponse` is the top-level API endpoint for the client package. It handles two routes:
+1.  **Custom Override Path**: If custom base URLs or keys are provided, it bypasses the gateway completely to run a single, direct API request (e.g. for developer testing).
+2.  **Production Gateway Path**: Otherwise, it delegates execution to the global `LLMGateway` instance, letting it handle standard model catalouges, fallback loops, and circuit breakers.
+
+---
+
+### Q17: Does the `generateResponse` function make two concurrent calls to the AI in its custom parameters block?
+**Answer:**
+No, it makes exactly one call. The custom parameter block is enclosed in an `if` statement that returns the custom call result immediately. If the condition isn't met, it falls through to the gateway call instead. The two concurrent calls seen in the Chat Arena occur because the Express route controller runs `generateResponse` twice in parallel (once for Model A and once for Model B) using `Promise.allSettled()`.

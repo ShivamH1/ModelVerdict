@@ -1,10 +1,10 @@
-import { prisma } from '../db';
-import { MODEL_CATALOG } from '@veritas/shared';
+import { prisma } from "../db";
+import { MODEL_CATALOG } from "@veritas/shared";
 
 export interface LeaderboardEntry {
   modelId: string;
   name: string;
-  type: 'FREE' | 'FRONTIER';
+  type: "FREE" | "FRONTIER";
   elo: number;
   votesCount: number;
   wins: number;
@@ -21,12 +21,15 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
       votedFor: { not: null },
     },
     orderBy: {
-      createdAt: 'asc',
+      createdAt: "asc",
     },
   });
 
   // Initialize Elos and stats
-  const statsMap: Record<string, Omit<LeaderboardEntry, 'winRate' | 'matches'>> = {};
+  const statsMap: Record<
+    string,
+    Omit<LeaderboardEntry, "winRate" | "matches">
+  > = {};
   for (const model of MODEL_CATALOG) {
     statsMap[model.id] = {
       modelId: model.id,
@@ -61,12 +64,12 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
     let SA = 0.5;
     let SB = 0.5;
 
-    if (vote === 'A') {
+    if (vote === "A") {
       SA = 1;
       SB = 0;
       statsMap[idA].wins += 1;
       statsMap[idB].losses += 1;
-    } else if (vote === 'B') {
+    } else if (vote === "B") {
       SA = 0;
       SB = 1;
       statsMap[idA].losses += 1;
@@ -103,7 +106,7 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
 
 export async function computeEloDeltaForSession(
   sessionId: string,
-  vote: 'A' | 'B' | 'tie' | 'both_bad'
+  vote: "A" | "B" | "tie" | "both_bad",
 ): Promise<{ modelA: number; modelB: number } | null> {
   const session = await prisma.session.findUnique({ where: { id: sessionId } });
   if (!session) return null;
@@ -113,9 +116,9 @@ export async function computeEloDeltaForSession(
     where: {
       votedFor: { not: null },
       createdAt: { lt: session.createdAt },
-      id: { not: sessionId }
+      id: { not: sessionId },
     },
-    orderBy: { createdAt: 'asc' }
+    orderBy: { createdAt: "asc" },
   });
 
   // Run the Elo loop to find the ratings before this session
@@ -141,10 +144,10 @@ export async function computeEloDeltaForSession(
     let SA = 0.5;
     let SB = 0.5;
 
-    if (v === 'A') {
+    if (v === "A") {
       SA = 1;
       SB = 0;
-    } else if (v === 'B') {
+    } else if (v === "B") {
       SA = 0;
       SB = 1;
     }
@@ -154,8 +157,10 @@ export async function computeEloDeltaForSession(
   }
 
   // Now calculate the delta for the current session
-  const eloA = ratings[session.modelIdA] !== undefined ? ratings[session.modelIdA] : 1200;
-  const eloB = ratings[session.modelIdB] !== undefined ? ratings[session.modelIdB] : 1200;
+  const eloA =
+    ratings[session.modelIdA] !== undefined ? ratings[session.modelIdA] : 1200;
+  const eloB =
+    ratings[session.modelIdB] !== undefined ? ratings[session.modelIdB] : 1200;
 
   const EA = 1 / (1 + Math.pow(10, (eloB - eloA) / 400));
   const EB = 1 / (1 + Math.pow(10, (eloA - eloB) / 400));
@@ -163,10 +168,10 @@ export async function computeEloDeltaForSession(
   let SA = 0.5;
   let SB = 0.5;
 
-  if (vote === 'A') {
+  if (vote === "A") {
     SA = 1;
     SB = 0;
-  } else if (vote === 'B') {
+  } else if (vote === "B") {
     SA = 0;
     SB = 1;
   }

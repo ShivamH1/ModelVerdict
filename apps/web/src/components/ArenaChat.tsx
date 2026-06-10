@@ -93,7 +93,11 @@ export default function ArenaChat() {
     ];
 
     const previousSession = session;
-    setSession({ ...session, messagesA: updatedMsgsA, messagesB: updatedMsgsB });
+    setSession({
+      ...session,
+      messagesA: updatedMsgsA,
+      messagesB: updatedMsgsB,
+    });
 
     try {
       const res = await fetch(`/api/sessions/${session.id}/chat`, {
@@ -127,8 +131,14 @@ export default function ArenaChat() {
         const lastMsgB = data.messagesB[lastIndexB];
 
         // Don't animate error messages
-        const fullTxtA = lastMsgA?.role === "assistant" && !lastMsgA?.isError ? lastMsgA.content : null;
-        const fullTxtB = lastMsgB?.role === "assistant" && !lastMsgB?.isError ? lastMsgB.content : null;
+        const fullTxtA =
+          lastMsgA?.role === "assistant" && !lastMsgA?.isError
+            ? lastMsgA.content
+            : null;
+        const fullTxtB =
+          lastMsgB?.role === "assistant" && !lastMsgB?.isError
+            ? lastMsgB.content
+            : null;
 
         if (!fullTxtA && !fullTxtB) {
           setSession(data);
@@ -138,10 +148,16 @@ export default function ArenaChat() {
 
         const initialSession = { ...data };
         if (fullTxtA && initialSession.messagesA[lastIndexA]) {
-          initialSession.messagesA[lastIndexA] = { ...initialSession.messagesA[lastIndexA], content: "" };
+          initialSession.messagesA[lastIndexA] = {
+            ...initialSession.messagesA[lastIndexA],
+            content: "",
+          };
         }
         if (fullTxtB && initialSession.messagesB[lastIndexB]) {
-          initialSession.messagesB[lastIndexB] = { ...initialSession.messagesB[lastIndexB], content: "" };
+          initialSession.messagesB[lastIndexB] = {
+            ...initialSession.messagesB[lastIndexB],
+            content: "",
+          };
         }
 
         setSession(initialSession);
@@ -170,7 +186,10 @@ export default function ArenaChat() {
               if (!prev) return prev;
               const copy = { ...prev };
               if (copy.messagesA[lastIndexA])
-                copy.messagesA[lastIndexA] = { ...copy.messagesA[lastIndexA], content: sliceA };
+                copy.messagesA[lastIndexA] = {
+                  ...copy.messagesA[lastIndexA],
+                  content: sliceA,
+                };
               return copy;
             });
           }
@@ -183,7 +202,10 @@ export default function ArenaChat() {
               if (!prev) return prev;
               const copy = { ...prev };
               if (copy.messagesB[lastIndexB])
-                copy.messagesB[lastIndexB] = { ...copy.messagesB[lastIndexB], content: sliceB };
+                copy.messagesB[lastIndexB] = {
+                  ...copy.messagesB[lastIndexB],
+                  content: sliceB,
+                };
               return copy;
             });
           }
@@ -193,7 +215,8 @@ export default function ArenaChat() {
       clearLoadingTimer();
       setLoadingStatus("");
       console.error("Chat failure:", err);
-      const msg = err instanceof Error ? err.message : "Failed to send chat prompt.";
+      const msg =
+        err instanceof Error ? err.message : "Failed to send chat prompt.";
       setError(msg);
       setSession(previousSession);
       setLoading(false);
@@ -224,7 +247,9 @@ export default function ArenaChat() {
   const revealSession = async () => {
     if (!session || session.isRevealed) return;
     try {
-      const res = await fetch(`/api/sessions/${session.id}/reveal`, { method: "POST" });
+      const res = await fetch(`/api/sessions/${session.id}/reveal`, {
+        method: "POST",
+      });
       const data = await res.json();
       setSession(data);
     } catch (err) {
@@ -234,7 +259,8 @@ export default function ArenaChat() {
 
   const getDisplayHeader = (isModelA: boolean) => {
     if (!session) return "";
-    if (blindMode && !session.isRevealed) return isModelA ? "Assistant A" : "Assistant B";
+    if (blindMode && !session.isRevealed)
+      return isModelA ? "Assistant A" : "Assistant B";
     const targetModelId = isModelA ? session.modelIdA : session.modelIdB;
     const model = MODEL_CATALOG.find((m) => m.id === targetModelId);
     return model ? model.name : targetModelId;
@@ -246,7 +272,8 @@ export default function ArenaChat() {
     const targetModelId = isModelA ? session.modelIdA : session.modelIdB;
     const model = MODEL_CATALOG.find((m) => m.id === targetModelId);
     if (model) {
-      const typeStr = model.type === "FRONTIER" ? "Frontier Class" : "Open Weight";
+      const typeStr =
+        model.type === "FRONTIER" ? "Frontier Class" : "Open Weight";
       return model.description || typeStr;
     }
     return "External Endpoint Override";
@@ -268,11 +295,16 @@ export default function ArenaChat() {
       qwen: { bg: "bg-purple-600", char: "Q" },
       mistral: { bg: "bg-orange-600", char: "M" },
     };
-    const brand =
-      Object.entries(brands).find(([key]) => targetModelId.toLowerCase().includes(key))?.[1] ||
-      { bg: "bg-indigo-600", char: "A" };
+    const brand = Object.entries(brands).find(([key]) =>
+      targetModelId.toLowerCase().includes(key),
+    )?.[1] || { bg: "bg-indigo-600", char: "A" };
     return (
-      <div className={cn("w-5 h-5 rounded-md flex items-center justify-center text-[11px] text-white font-black shadow-sm font-sans select-none", brand.bg)}>
+      <div
+        className={cn(
+          "w-5 h-5 rounded-md flex items-center justify-center text-[11px] text-white font-black shadow-sm font-sans select-none",
+          brand.bg,
+        )}
+      >
         {brand.char}
       </div>
     );
@@ -287,7 +319,9 @@ export default function ArenaChat() {
     return (
       <div className="flex flex-col flex-1 h-full bg-neutral-950 text-[#e0e0e0] items-center justify-center gap-4">
         <AlertTriangle className="w-8 h-8 text-amber-500" />
-        <p className="text-sm text-neutral-400">Failed to connect to the arena. Is the API running?</p>
+        <p className="text-sm text-neutral-400">
+          Failed to connect to the arena. Is the API running?
+        </p>
         <button
           onClick={initSession}
           className="flex items-center gap-2 text-xs px-4 py-2 rounded-lg bg-neutral-800 border border-neutral-700 hover:border-neutral-600 text-neutral-200 transition-all"
@@ -324,7 +358,12 @@ export default function ArenaChat() {
             disabled={loading}
             className="text-xs text-neutral-300 hover:text-white px-2.5 py-1 rounded transition-all flex items-center gap-1.5 bg-neutral-900 border border-neutral-800 hover:border-neutral-700 disabled:opacity-50"
           >
-            <RefreshCw className={cn("w-3.5 h-3.5", loading && !hasMessages && "animate-spin")} />
+            <RefreshCw
+              className={cn(
+                "w-3.5 h-3.5",
+                loading && !hasMessages && "animate-spin",
+              )}
+            />
             <span>Reset Arena</span>
           </button>
         </div>
@@ -369,23 +408,28 @@ export default function ArenaChat() {
         {hasMessages && (
           <div className="pt-3 border-t border-neutral-900 w-full max-w-3xl mx-auto select-none">
             {/* Retry prompt button when last message had errors */}
-            {lastPrompt && !loading && !isStreaming && session && (() => {
-              const lastA = session.messagesA[session.messagesA.length - 1];
-              const lastB = session.messagesB[session.messagesB.length - 1];
-              const anyError = (lastA as any)?.isError || (lastB as any)?.isError;
-              if (!anyError) return null;
-              return (
-                <div className="mb-2 flex justify-center">
-                  <button
-                    onClick={() => handleSend(undefined, lastPrompt)}
-                    className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-amber-950/40 border border-amber-800/50 text-amber-400 hover:border-amber-700 transition-all"
-                  >
-                    <RotateCcw className="w-3 h-3" />
-                    Retry failed model
-                  </button>
-                </div>
-              );
-            })()}
+            {lastPrompt &&
+              !loading &&
+              !isStreaming &&
+              session &&
+              (() => {
+                const lastA = session.messagesA[session.messagesA.length - 1];
+                const lastB = session.messagesB[session.messagesB.length - 1];
+                const anyError =
+                  (lastA as any)?.isError || (lastB as any)?.isError;
+                if (!anyError) return null;
+                return (
+                  <div className="mb-2 flex justify-center">
+                    <button
+                      onClick={() => handleSend(undefined, lastPrompt)}
+                      className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-amber-950/40 border border-amber-800/50 text-amber-400 hover:border-amber-700 transition-all"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      Retry failed model
+                    </button>
+                  </div>
+                );
+              })()}
             <form
               onSubmit={handleSend}
               className="flex items-center gap-2 bg-neutral-900/80 rounded-2xl border border-neutral-800 p-2 focus-within:border-neutral-700 transition-all"
