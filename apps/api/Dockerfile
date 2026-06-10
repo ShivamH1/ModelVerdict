@@ -2,15 +2,21 @@ FROM oven/bun:1.3.4
 
 WORKDIR /app
 
-# Copy workspace manifests first for better layer caching
-COPY bun.lock package.json turbo.json ./
+# Copy root workspace manifests
+COPY package.json bun.lock turbo.json ./
+
+# Copy internal packages and the API app
 COPY packages/ ./packages/
 COPY apps/api/ ./apps/api/
 
-# Install all workspace deps from root so workspace links resolve
-RUN bun install --frozen-lockfile
+# Stub apps/web so bun skips installing Next.js + React (~400MB saved)
+RUN mkdir -p apps/web && \
+    echo '{"name":"@veritas/web","version":"0.0.0","private":true}' > apps/web/package.json
 
-# Generate Prisma client
+# Install only API + package dependencies
+RUN bun install
+
+# Generate Prisma client (binaryTargets set in schema.prisma for linux)
 RUN cd apps/api && bunx prisma generate
 
 EXPOSE 3001
