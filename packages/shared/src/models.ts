@@ -19,9 +19,21 @@ export const MODEL_CATALOG: ModelConfig[] = [
     apiKeyEnv: "GROQ_API_KEY",
     freeTier: true,
     providerChain: [
-      { provider: "groq", modelName: "llama-3.1-8b-instant", apiKeyEnv: "GROQ_API_KEY" },
-      { provider: "openrouter", modelName: "meta-llama/llama-3.1-8b-instruct:free", apiKeyEnv: "OPENROUTER_API_KEY" },
-      { provider: "huggingface", modelName: "meta-llama/Llama-3.1-8B-Instruct", apiKeyEnv: "HUGGINGFACE_TOKEN" },
+      {
+        provider: "groq",
+        modelName: "llama-3.1-8b-instant",
+        apiKeyEnv: "GROQ_API_KEY",
+      },
+      {
+        provider: "openrouter",
+        modelName: "meta-llama/llama-3.1-8b-instruct:free",
+        apiKeyEnv: "OPENROUTER_API_KEY",
+      },
+      {
+        provider: "huggingface",
+        modelName: "meta-llama/Llama-3.1-8B-Instruct",
+        apiKeyEnv: "HUGGINGFACE_TOKEN",
+      },
       GEMINI_FALLBACK,
     ],
   },
@@ -36,8 +48,16 @@ export const MODEL_CATALOG: ModelConfig[] = [
     apiKeyEnv: "GROQ_API_KEY",
     freeTier: true,
     providerChain: [
-      { provider: "groq", modelName: "llama-3.3-70b-versatile", apiKeyEnv: "GROQ_API_KEY" },
-      { provider: "openrouter", modelName: "meta-llama/llama-3.3-70b-instruct:free", apiKeyEnv: "OPENROUTER_API_KEY" },
+      {
+        provider: "groq",
+        modelName: "llama-3.3-70b-versatile",
+        apiKeyEnv: "GROQ_API_KEY",
+      },
+      {
+        provider: "openrouter",
+        modelName: "meta-llama/llama-3.3-70b-instruct:free",
+        apiKeyEnv: "OPENROUTER_API_KEY",
+      },
       GEMINI_FALLBACK,
     ],
   },
@@ -52,9 +72,21 @@ export const MODEL_CATALOG: ModelConfig[] = [
     apiKeyEnv: "MISTRAL_API_KEY",
     freeTier: true,
     providerChain: [
-      { provider: "mistral", modelName: "open-mistral-7b", apiKeyEnv: "MISTRAL_API_KEY" },
-      { provider: "openrouter", modelName: "mistralai/mistral-7b-instruct:free", apiKeyEnv: "OPENROUTER_API_KEY" },
-      { provider: "huggingface", modelName: "mistralai/Mistral-7B-Instruct-v0.3", apiKeyEnv: "HUGGINGFACE_TOKEN" },
+      {
+        provider: "mistral",
+        modelName: "open-mistral-7b",
+        apiKeyEnv: "MISTRAL_API_KEY",
+      },
+      {
+        provider: "openrouter",
+        modelName: "mistralai/mistral-7b-instruct:free",
+        apiKeyEnv: "OPENROUTER_API_KEY",
+      },
+      {
+        provider: "huggingface",
+        modelName: "mistralai/Mistral-7B-Instruct-v0.3",
+        apiKeyEnv: "HUGGINGFACE_TOKEN",
+      },
       GEMINI_FALLBACK,
     ],
   },
@@ -69,8 +101,16 @@ export const MODEL_CATALOG: ModelConfig[] = [
     apiKeyEnv: "OPENROUTER_API_KEY",
     freeTier: true,
     providerChain: [
-      { provider: "openrouter", modelName: "deepseek/deepseek-chat", apiKeyEnv: "OPENROUTER_API_KEY" },
-      { provider: "huggingface", modelName: "deepseek-ai/DeepSeek-V3", apiKeyEnv: "HUGGINGFACE_TOKEN" },
+      {
+        provider: "openrouter",
+        modelName: "deepseek/deepseek-chat",
+        apiKeyEnv: "OPENROUTER_API_KEY",
+      },
+      {
+        provider: "huggingface",
+        modelName: "deepseek-ai/DeepSeek-V3",
+        apiKeyEnv: "HUGGINGFACE_TOKEN",
+      },
       GEMINI_FALLBACK,
     ],
   },
@@ -85,8 +125,16 @@ export const MODEL_CATALOG: ModelConfig[] = [
     apiKeyEnv: "OPENROUTER_API_KEY",
     freeTier: true,
     providerChain: [
-      { provider: "openrouter", modelName: "qwen/qwen-2.5-72b-instruct", apiKeyEnv: "OPENROUTER_API_KEY" },
-      { provider: "huggingface", modelName: "Qwen/Qwen2.5-72B-Instruct", apiKeyEnv: "HUGGINGFACE_TOKEN" },
+      {
+        provider: "openrouter",
+        modelName: "qwen/qwen-2.5-72b-instruct",
+        apiKeyEnv: "OPENROUTER_API_KEY",
+      },
+      {
+        provider: "huggingface",
+        modelName: "Qwen/Qwen2.5-72B-Instruct",
+        apiKeyEnv: "HUGGINGFACE_TOKEN",
+      },
       GEMINI_FALLBACK,
     ],
   },
@@ -102,8 +150,6 @@ export const MODEL_CATALOG: ModelConfig[] = [
     baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai/",
     apiKeyEnv: "GEMINI_API_KEY",
     freeTier: false,
-    providerChain: [
-      GEMINI_FALLBACK,
-    ],
+    providerChain: [GEMINI_FALLBACK],
   },
 ];
